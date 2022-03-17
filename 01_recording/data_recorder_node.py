@@ -28,7 +28,7 @@ class recorder():
         self.dir_path = os.path.dirname(os.path.abspath(__file__)) # get path for current file, does not work if os.chdir() was used
         self.model = rospy.get_param("model","base_model")
         self.now = time.strftime("%y-%m-%d_%H-%M-%S")
-        '''
+        #'''
         self.waypoint_generator = rospy.get_param("waypoint_generator")
         self.record_only_planner = rospy.get_param("record_only_planner")
         self.scenario = rospy.get_param("scenario_file").replace(".json","").replace("eval/","")
