@@ -52,10 +52,8 @@ Some configurations can be set in the `get_metrics_config.yaml` file. Those are:
 NOTE: Do NOT change the `get_metrics_config_default.yaml`!
 
 We recommend using the code below:
-```
-workon rosnav
-roscd arena_evaluation/02_evaluation
-python get_metrics.py
+```bash
+workon rosnav && roscd arena_evaluation/02_evaluation && python get_metrics.py
 ```
 
 NOTE: If you want to reuse csv files, simply move the desired csv files from the data directory to `/01_recording` and execute the `get_metrics.py` script again.
@@ -69,10 +67,8 @@ specified_data_filename: <your_dataset>.json
 ```
 
 For runnning the script recommend using the code below:
-```
-workon rosnav
-roscd arena_evaluation/03_plotting
-python get_plots.py
+```bash
+workon rosnav && roscd arena_evaluation/03_plotting && python get_plots.py
 ```
 
 ### Mandatory fields:
@@ -154,7 +150,7 @@ There are many configurations that can be set int `get_plots_config.yaml`. They 
 - `start_size`: size of start point (QUALI)
 
 # Mesure complexity of you map
-1. run: `roscd arena-tools`
+1. run: `roscd arena-evaluation`
 2. run: `python world_complexity.py --image_path {IMAGE_PATH} --yaml_path {YAML_PATH} --dest_path {DEST_PATH}`
 
 with:\
