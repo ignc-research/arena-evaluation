@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+"""
+This file is used to calculate from the simulation data, various metrics, such as
+- did a collision occur
+- how long did the robot take form start to goal
+the metrics / evaluation data will be saved to be preproccesed in the next step
+"""
+
+
 from unittest import skip
 import numpy as np
 import pandas as pd
@@ -10,7 +19,6 @@ import warnings
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 import sys
-
 
 class get_metrics():
     def __init__(self):
@@ -31,7 +39,7 @@ class get_metrics():
         data = {}
         # get all the csv files paths in the directory where this script is located
         files = glob.glob("{0}/*.csv".format(self.data_dir))
-        planners = []
+        name = []
         if len(files) == 0:
             print(
                 "ERROR: No files to evaluate were found the requestID directory. Terminating script.")
@@ -46,7 +54,7 @@ class get_metrics():
                       " does not match the naming convention. Skipping this file")
                 files.remove(file)
                 continue
-            planners.append(file_name[0])
+            name.append(f'{file_name[0]}_{file_name[1]}')
             # join together to only include local planner, map and obstacle number
             file_name = "--".join(file_name)
             print("-------------------------------------------------------------------------------------------------")
@@ -60,15 +68,23 @@ class get_metrics():
                 "paths_travelled": self.get_paths_travelled(df),
                 "collision_zones": self.get_collision_zones(df)
             }
+            test = self.get_summary_df(df)
+            for element in [self.get_paths_travelled(df), self.get_collision_zones(df)]:
+                element = pd.DataFrame.from_dict(element, orient='index').transpose()
+                test = pd.concat([test.reset_index(drop=True), element.reset_index(drop=True)], axis=1)
+            test = self.data_type_management(test)
+            os.makedirs(self.dir_path+'/ftr_data', exist_ok=True)
             print(
                 "INFO: Data tranformation and evaluation finished for: {}".format(file_name))
+            test.to_feather(
+                self.dir_path+f"/ftr_data/data_{name[0]}.ftr")
         self.grab_data(files)
-        self.get_summary_df(df).reset_index().to_feather(
-            self.dir_path+"/data_{}.ftr".format(self.now))
-        with open(self.dir_path+"/data_{}.json".format(self.now), "w") as outfile:
-            json.dump(data, outfile)
-        with open(self.dir_path+"/data_{}.txt".format(self.now), "w") as outfile:
-            outfile.write("\n".join(list(np.unique(planners))))
+        # self.get_summary_df(df).reset_index().to_feather(
+        #     self.dir_path+"/data_{}.ftr".format(self.now))
+        # with open(self.dir_path+"/data_{}.json".format(self.now), "w") as outfile:
+        #     json.dump(data, outfile)
+        # with open(self.dir_path+"/data_{}.txt".format(self.now), "w") as outfile:
+        #     outfile.write("\n".join(list(np.unique(planners))))
         print("-------------------------------------------------------------------------------------------------")
         print("INFO: End data transformation and evaluation: {}".format(
             time.strftime("%y-%m-%d_%H:%M:%S")))
@@ -108,7 +124,11 @@ class get_metrics():
         raw_collision = list(np.any(np.less_equal(
             x, self.config["robot_radius"][model])) for x in df["laser_scan"])
         helper_collision = [False] + raw_collision[:-1]
-        return [x > 0 for x in [r - h for r, h in zip(list(map(int, raw_collision)), list(map(int, helper_collision)))]]
+        # return [x > 0 for x in [r - h for r, h in zip(list(map(int, raw_collision)), list(map(int, helper_collision)))]]
+        temp = []
+        for r, h in zip(list(map(int, raw_collision)), list(map(int, helper_collision))):
+            temp.append(r - h)
+        return [x > 0 for x in temp]
 
     def get_action_type(self, df):
         action_type_column = []
@@ -375,6 +395,7 @@ class get_metrics():
             for k in range(2, kmax+1):
                 kmeans = KMeans(n_clusters=k).fit(points)
                 labels = kmeans.labels_
+                # NOTE this setps takes ages
                 silhouette_score_list.append(silhouette_score(
                     points, labels, metric='euclidean'))
             # kmeans here starts at 2 centroids so argmax 0 equals 2 centroids
@@ -383,6 +404,11 @@ class get_metrics():
             centroids = kmeans.cluster_centers_
             _, counts = np.unique(kmeans.labels_, return_counts=True)
         return {"centroids": centroids.tolist(), "counts": counts.tolist(), "collisions": collisions.values.tolist()}
+
+    def data_type_management(self, df):
+        df = df.convert_dtypes()
+        df['done_reason'] = df['done_reason'].astype("category")
+        return df
 
 
 if __name__ == "__main__":
