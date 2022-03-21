@@ -33,7 +33,7 @@ NOTE: Leaving the simulation running for a long time after finishing the set num
 
 NOTE: Sometimes csv files will be ignored by git so you have to use git add -f <file>. We recommend using the code below.
 ```
-roscd arena_evaluation
+roscd arena-evaluation
 git add -f .
 git commit -m "evaluation run"
 git pull
@@ -53,7 +53,7 @@ NOTE: Do NOT change the `get_metrics_config_default.yaml`!
 
 We recommend using the code below:
 ```bash
-workon rosnav && roscd arena_evaluation/02_evaluation && python get_metrics.py
+workon rosnav && roscd arena-evaluation/02_evaluation && python get_metrics.py
 ```
 
 NOTE: If you want to reuse csv files, simply move the desired csv files from the data directory to `/01_recording` and execute the `get_metrics.py` script again.
@@ -68,7 +68,7 @@ specified_data_filename: <your_dataset>.json
 
 For runnning the script recommend using the code below:
 ```bash
-workon rosnav && roscd arena_evaluation/03_plotting && python get_plots.py
+workon rosnav && roscd arena-evaluation/03_plotting && python get_plots.py
 ```
 
 ### Mandatory fields:
