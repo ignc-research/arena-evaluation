@@ -68,16 +68,16 @@ class get_metrics():
                 "paths_travelled": self.get_paths_travelled(df),
                 "collision_zones": self.get_collision_zones(df)
             }
-            test = self.get_summary_df(df)
+            data_total = self.get_summary_df(df)
             for element in [self.get_paths_travelled(df), self.get_collision_zones(df)]:
                 element = pd.DataFrame.from_dict(element, orient='index').transpose()
-                test = pd.concat([test.reset_index(drop=True), element.reset_index(drop=True)], axis=1)
-            test = self.data_type_management(test)
+                data_total = pd.concat([data_total.reset_index(drop=True), element.reset_index(drop=True)], axis=1)
+            data_total = self.data_type_management(data_total)
             os.makedirs(self.dir_path+'/ftr_data', exist_ok=True)
             print(
                 "INFO: Data tranformation and evaluation finished for: {}".format(file_name))
-            test.to_feather(
-                self.dir_path+f"/ftr_data/data_{name[0]}.ftr")
+            data_total.to_feather(
+                self.dir_path+f"/ftr_data/data_{name[-1]}.ftr")
         self.grab_data(files)
         # self.get_summary_df(df).reset_index().to_feather(
         #     self.dir_path+"/data_{}.ftr".format(self.now))
