@@ -29,6 +29,13 @@ def prepare_dataset():
 def extend_dataset(data, file:str):
     _new_data = pd.read_feather(os.path.dirname(os.path.abspath(__file__)) + '/ftr_data/' + file)
     _file_meta_infos = file.split('_')
+    if 'turtlebot3' in _file_meta_infos:
+        _file_meta_infos[2] = f'{_file_meta_infos[2]}_{_file_meta_infos[3]}'
+        _file_meta_infos = _file_meta_infos[:3] + _file_meta_infos[4:]
+    if 'warehouse' in _file_meta_infos:
+        _file_meta_infos[3] = f'{_file_meta_infos[3]}_{_file_meta_infos[4]}'
+        _file_meta_infos = _file_meta_infos[:4] + _file_meta_infos[5:]
+
     _new_data['Planner'], _new_data['Robot'], _new_data['World'] = _file_meta_infos[1:-1]
     _new_data['Dyn_obs'] = int(re.search(r'\d+', _file_meta_infos[-1]).group())
     return data.append(_new_data)
