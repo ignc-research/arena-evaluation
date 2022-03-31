@@ -87,11 +87,12 @@ This script will evaluate the raw data recorded from the evaluation and store it
     This script will combine all ftr files in the `02_evaluation/ftr_data` folder into one large ftr file, taking into account the planner, robot etc. 
 ## 03 Plotting
 The data prepared in the previous steps can be visualized with two different modes, the automated or the custom mode.
+
 ### Custom Plotting (recommended)
 Open the following [notebook](03_plotting/data_visualization.ipynb) to visualize your data. It contains a step-by-step guide on how to create an accurate visual representation of your data. For examples of supported plots, refer to the documentation [here](docs/plotting_examples.md).
 
 ### Automated Plotting (in development)
-The `get_plots.py` script grabs all `data.json` files located in `/02_evaluation` and moves them to `/03_plotting/data`. During the process the last in order JSON file from the grabbed files will be deemed as "most recent" file. If no file was grabbed, the last data.json used for plotting will remain the "most recent" file. Alternatively, it's possible to specify a `data.json` to be used for plotting. To specify a dataset set the following keys in the `get_plots_config.yaml`:
+<!-- The `get_plots.py` script grabs all `data.json` files located in `/02_evaluation` and moves them to `/03_plotting/data`. During the process the last in order JSON file from the grabbed files will be deemed as "most recent" file. If no file was grabbed, the last data.json used for plotting will remain the "most recent" file. Alternatively, it's possible to specify a `data.json` to be used for plotting. To specify a dataset set the following keys in the `get_plots_config.yaml`:
 
 ```yaml
 specify_data: true
@@ -114,9 +115,9 @@ Make sure for those fields **all** your local planner or planner-waypoint-genera
 - color_scheme:
     - rlca_jackal
 
-See the documentation [here](docs/fields.md) for an explanation of the possible parameters fields.
+See the documentation [here](docs/fields.md) for an explanation of the possible parameters fields. -->
 
-It is possible to plot qualitative and quantitative metrics. For a detailed description and examples see the documentation [here](docs/plotting_metrics.md)
+
 # Mesure complexity of you map
 1. run: `roscd arena-evaluation`
 2. run: `python world_complexity.py --image_path {IMAGE_PATH} --yaml_path {YAML_PATH} --dest_path {DEST_PATH}`
