@@ -99,7 +99,7 @@ specify_data: true
 specified_data_filename: <your_dataset>.json
 ```
 
-For runnning the script recommend using the code below:
+For running the script recommend using the code below:
 ```bash
 workon rosnav && roscd arena-evaluation/03_plotting && python get_plots.py
 ```

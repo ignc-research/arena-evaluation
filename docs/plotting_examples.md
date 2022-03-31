@@ -6,6 +6,7 @@ The performance of a robot can be measured by a number of different metrics. The
 
 The following performance parameter are being calculated by the arena-evaluation script:
 #### Qualitative Plots
+|<img width="250" src="/docs/imgs/qualitative_plot_house.png">|<img width="250" src="/docs/imgs/qualitative_plot_map5.png">|
 #### Quantitative Plots
 The simulation data can be evaluated various different metrics:
 - `Success`: Is a binary classifier which determines, whether the robot reached the navigation goal within the given time frame and below the collision threshold
@@ -19,8 +20,8 @@ The simulation data can be evaluated various different metrics:
 
 The following table gives you an insight into the variable type of the parameter, which is important for choosing the right representation.
 
-| **Categorical**                                                                       | **Continuous**                                                                                                                                                                                                            | **Binary**           |
-| :------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------------------- |
+| **Categorical** | **Continuous**  | **Binary** |
+| :---------------------------- | :---------------------- | :------------------- |
 | - Robot  <br> - World  <br> - Obs(tacles)  <br> - Planner  <br> - done\_reason        | - Time (to goal)  <br> - (collision) (actually discrete)  <br> - curvature  <br> - normalized\_curvature  <br> - roughness  <br> - jerk <br> - acc  <br> - vel  <br> - path\_length <br> - angle\_over\_length  <br> - max\_curvature | - success |
 
 ---
