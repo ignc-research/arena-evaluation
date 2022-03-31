@@ -57,8 +57,7 @@ record_frequency: 0.2 # time between actions recorded
 
 > **NOTE**: Sometimes csv files will be ignored by git so you have to use git add -f <file>. We recommend using the code below.
 ```bash
-roscd arena-evaluation
-git add -f .
+roscd arena-evaluation && git add -f .
 git commit -m "evaluation run"
 git pull
 git push
@@ -66,26 +65,25 @@ git push
 
 ## 02 Data Transformation and Evaluation
 1. After finishing all the evaluation runs, recording the desired csv files and run the `get_metrics.py` script in `/02_evaluation`. 
-```bash
-roscd arena-evaluation/02-evaluation && python get_metrics.py
-```
-
-This script will evaluate the raw data recorded from the evaluation runs und summarize them in a compact dataset for each map, planner and scenario, which are all stored in one single JSON file with the following naming convention: `data_<timestamp>.json`. During this process all the csv files will be moved from `/01_recording` to `/02_evaluation` into a directory with the naming convention `data_<timestamp>`. The JSON file will be stored in `/02_evaluation`.
-
+This script will evaluate the raw data recorded from the evaluation and store it (or them) `.ftr` file with the following naming convention: `data_<planner>_<robot>_<map>_<obstacles>.ftr`. During this process all the csv files will be moved from `/01_recording` to `/02_evaluation` into a directory with the naming convention `data_<timestamp>`. The ftr file will be stored in `/02_evaluation`.\
 Some configurations can be set in the `get_metrics_config.yaml` file. Those are:
 - `robot_radius`: dictionary of robot radii, relevant for collision measurement
 - `time_out_treshold`: treshold for episode timeout in seconds
 - `collision_treshold`: treshold for allowed number of collisions until episode deemed as failed
 
-NOTE: Do NOT change the `get_metrics_config_default.yaml`!
+  > **NOTE**: Do NOT change the `get_metrics_config_default.yaml`!
 
-We recommend using the code below:
-```bash
-workon rosnav && roscd arena-evaluation/02_evaluation && python get_metrics.py
-```
+  We recommend using the code below:
+  ```bash
+  workon rosnav && roscd arena-evaluation/02_evaluation && python get_metrics.py
+  ```
+> **NOTE**: If you want to reuse csv files, simply move the desired csv files from the data directory to `/01_recording` and execute the `get_metrics.py` script again.
 
-NOTE: If you want to reuse csv files, simply move the desired csv files from the data directory to `/01_recording` and execute the `get_metrics.py` script again.
-
+2. The observations of the individual runs can be joined into one large dataset, using the following script:
+  ```bash
+  workon rosnav && roscd arena-evaluation/02_evaluation && python combine_into_one_dataset.py
+  ```
+  This script will combine all ftr files in the `02_evaluation/ftr_data` folder into one large ftr file, taking into account the planner, robot etc.
 ## 03 Plotting
 The `get_plots.py` script grabs all `data.json` files located in `/02_evaluation` and moves them to `/03_plotting/data`. During the process the last in order JSON file from the grabbed files will be deemed as "most recent" file. If no file was grabbed, the last data.json used for plotting will remain the "most recent" file. Alternatively, it's possible to specify a `data.json` to be used for plotting. To specify a dataset set the following keys in the `get_plots_config.yaml`:
 
