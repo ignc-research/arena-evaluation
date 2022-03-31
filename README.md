@@ -66,24 +66,25 @@ git push
 ## 02 Data Transformation and Evaluation
 1. After finishing all the evaluation runs, recording the desired csv files and run the `get_metrics.py` script in `/02_evaluation`. 
 This script will evaluate the raw data recorded from the evaluation and store it (or them) `.ftr` file with the following naming convention: `data_<planner>_<robot>_<map>_<obstacles>.ftr`. During this process all the csv files will be moved from `/01_recording` to `/02_evaluation` into a directory with the naming convention `data_<timestamp>`. The ftr file will be stored in `/02_evaluation`.\
-Some configurations can be set in the `get_metrics_config.yaml` file. Those are:
-- `robot_radius`: dictionary of robot radii, relevant for collision measurement
-- `time_out_treshold`: treshold for episode timeout in seconds
-- `collision_treshold`: treshold for allowed number of collisions until episode deemed as failed
-
-  > **NOTE**: Do NOT change the `get_metrics_config_default.yaml`!
-
-  We recommend using the code below:
-  ```bash
-  workon rosnav && roscd arena-evaluation/02_evaluation && python get_metrics.py
-  ```
-> **NOTE**: If you want to reuse csv files, simply move the desired csv files from the data directory to `/01_recording` and execute the `get_metrics.py` script again.
-
+  Some configurations can be set in the `get_metrics_config.yaml` file. Those are:
+  - `robot_radius`: dictionary of robot radii, relevant for collision measurement
+  - `time_out_treshold`: treshold for episode timeout in seconds
+  - `collision_treshold`: treshold for allowed number of collisions until episode deemed as failed
+    > **NOTE**: Do NOT change the `get_metrics_config_default.yaml`!\
+    We recommend using the code below:\
+    ```bash
+    workon rosnav && roscd arena-evaluation/02_evaluation && python get_metrics.py
+    ```
+    > **NOTE**: If you want to reuse csv files, simply move the desired csv files from the data directory to `/01_recording` and execute the `get_metrics.py` script again.
+  
+    The repository can be used in two ways: 
+    - Firstly it can be used to evaluate the robot performance within the scenario run, e.g visualizing the velocity distribution within each simulation run (this usage mode is currently still under development). 
+    - Secondly, it can be used to evaluate the robot performance  compare robot performance between different scenarios. For this use-case continue with the following step 2.
 2. The observations of the individual runs can be joined into one large dataset, using the following script:
-  ```bash
-  workon rosnav && roscd arena-evaluation/02_evaluation && python combine_into_one_dataset.py
-  ```
-  This script will combine all ftr files in the `02_evaluation/ftr_data` folder into one large ftr file, taking into account the planner, robot etc.
+    ```bash
+    workon rosnav && roscd arena-evaluation/02_evaluation && python combine_into_one_dataset.py
+    ```
+    This script will combine all ftr files in the `02_evaluation/ftr_data` folder into one large ftr file, taking into account the planner, robot etc. 
 ## 03 Plotting
 The `get_plots.py` script grabs all `data.json` files located in `/02_evaluation` and moves them to `/03_plotting/data`. During the process the last in order JSON file from the grabbed files will be deemed as "most recent" file. If no file was grabbed, the last data.json used for plotting will remain the "most recent" file. Alternatively, it's possible to specify a `data.json` to be used for plotting. To specify a dataset set the following keys in the `get_plots_config.yaml`:
 
