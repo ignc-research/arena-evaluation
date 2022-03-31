@@ -7,7 +7,7 @@ It consists of 3 parts:
 - [Plotting](#03-plotting)
 ## Prerequisites
 
-```
+```bash
 pip install scikit-learn seaborn pandas matplotlib
 ```
 
@@ -15,14 +15,14 @@ pip install scikit-learn seaborn pandas matplotlib
 To integrate this evaluation class into your project, clone it into your catkin workspace (or put it into your .rosinstall file). 
 Then, inside your catkin workspace do:
 
-```
+```bash
 rosws update
 catkin_make
 ```
 
 After successfully making, you can use the evaluation class by including the following part into the roslaunch file from which you will start your simulation:
 
-```
+```xml
   <!-- data recorder -->
   <group if="$(eval arg('use_recorder') == true)">
     <node pkg="arena-evaluation" name="data_recorder_node" type="data_recorder_node.py" />
@@ -39,7 +39,7 @@ After successfully making, you can use the evaluation class by including the fol
 ## 01 Data Recording
 To record data as csv file while doing evaluation runs set the flag `use_recorder:="true"` in your `roslaunch` command. For example:
 
-```
+```bash
 workon rosnav
 roslaunch arena_bringup start_arena_gazebo.launch world:="aws_house" scenario_file:="aws_house_obs05.json" local_planner:="teb" model:="turtlebot3_burger" use_recorder:="true"
 ```
@@ -47,18 +47,16 @@ roslaunch arena_bringup start_arena_gazebo.launch world:="aws_house" scenario_fi
 The data will be recorded in `.../catkin_ws/src/forks/arena-evaluation/01_recording`.
 The script stops recording as soon as the agent finishes the scenario and stops moving or after termination criterion is met. Termination criterion as well as recording frequency can be set in `data_recorder_config.yaml`.
 
-```
+```yaml
 max_episodes: 15 # terminates simulation upon reaching xth episode
 max_time: 1200 # terminates simulation after x seconds
 record_frequency: 0.2 # time between actions recorded
 ```
 
-After doing all evaluation runs please remember to push your csv files or gather them in `/01_recording`.
+> **NOTE**: Leaving the simulation running for a long time after finishing the set number of repetitions does not influence the evaluation results as long as the agent stops running. Also, the last episode of every evaluation run is pruned before evaluating the recorded data.
 
-NOTE: Leaving the simulation running for a long time after finishing the set number of repetitions does not influence the evaluation results as long as the agent stops running. Also, the last episode of every evaluation run is pruned before evaluating the recorded data.
-
-NOTE: Sometimes csv files will be ignored by git so you have to use git add -f <file>. We recommend using the code below.
-```
+> **NOTE**: Sometimes csv files will be ignored by git so you have to use git add -f <file>. We recommend using the code below.
+```bash
 roscd arena-evaluation
 git add -f .
 git commit -m "evaluation run"
@@ -67,7 +65,11 @@ git push
 ```
 
 ## 02 Data Transformation and Evaluation
-After finishing all the evaluation runs, recording the desired csv files and allocating them in `/01_recording` you can run the `get_metrics.py` script in `/02_evaluation`.
+1. After finishing all the evaluation runs, recording the desired csv files and run the `get_metrics.py` script in `/02_evaluation`. 
+```bash
+roscd arena-evaluation/02-evaluation && python get_metrics.py
+```
+
 This script will evaluate the raw data recorded from the evaluation runs und summarize them in a compact dataset for each map, planner and scenario, which are all stored in one single JSON file with the following naming convention: `data_<timestamp>.json`. During this process all the csv files will be moved from `/01_recording` to `/02_evaluation` into a directory with the naming convention `data_<timestamp>`. The JSON file will be stored in `/02_evaluation`.
 
 Some configurations can be set in the `get_metrics_config.yaml` file. Those are:
@@ -87,7 +89,7 @@ NOTE: If you want to reuse csv files, simply move the desired csv files from the
 ## 03 Plotting
 The `get_plots.py` script grabs all `data.json` files located in `/02_evaluation` and moves them to `/03_plotting/data`. During the process the last in order JSON file from the grabbed files will be deemed as "most recent" file. If no file was grabbed, the last data.json used for plotting will remain the "most recent" file. Alternatively, it's possible to specify a `data.json` to be used for plotting. To specify a dataset set the following keys in the `get_plots_config.yaml`:
 
-```
+```yaml
 specify_data: true
 specified_data_filename: <your_dataset>.json
 ```
