@@ -6,7 +6,7 @@ The performance of a robot can be measured by a number of different metrics. The
 
 The following performance parameter are being calculated by the arena-evaluation script:
 #### Qualitative Plots
-|<img width="250" src="/docs/imgs/qualitative_plot_house.png">|<img width="250" src="/docs/imgs/qualitative_plot_map5.png">|
+<img src="/docs/imgs/qualitative-plots.png">
 #### Quantitative Plots
 The simulation data can be evaluated various different metrics:
 - `Success`: Is a binary classifier which determines, whether the robot reached the navigation goal within the given time frame and below the collision threshold
