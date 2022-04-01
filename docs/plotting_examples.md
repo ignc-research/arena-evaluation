@@ -6,6 +6,7 @@ The performance of a robot can be measured by a number of different metrics. The
 
 The following performance parameter are being calculated by the arena-evaluation script:
 #### Qualitative Plots
+These plots show the robot trajectories using the data from the scenario file, the occupancy map and the recorded robot Odometry. Note that these plots can only be created in *scenario* mode.
 
 <p align="center">
   <img src="/docs/imgs/qualitative-plots.png">
