@@ -5,37 +5,14 @@ It consists of 3 parts:
 - [Data recording](#01-data-recording)
 - [Data transformation and evaluation](#02-data-transformation-and-evaluation)
 - [Plotting](#03-plotting)
-## Prerequisites
+## General
+
+- To integrate arena evaluation into your project, see the guide [here](docs/integration-requirements.md)
+- To use it alonge side with the arena repositoroy, install the following requirements:
 
 ```bash
 pip install scikit-learn seaborn pandas matplotlib
 ```
-
-## Integration into your project
-To integrate this evaluation class into your project, clone it into your catkin workspace (or put it into your .rosinstall file). 
-Then, inside your catkin workspace do:
-
-```bash
-rosws update
-catkin_make
-```
-
-After successfully making, you can use the evaluation class by including the following part into the roslaunch file from which you will start your simulation:
-
-```xml
-  <!-- data recorder -->
-  <group if="$(eval arg('use_recorder') == true)">
-    <node pkg="arena-evaluation" name="data_recorder_node" type="data_recorder_node.py" />
-    <param name="local_planner" value="$(arg local_planner)"/>
-    <param name="waypoint_generator" value="$(arg waypoint_generator)"/>
-    <param name="record_only_planner" value="$(arg record_only_planner)"/>
-    <param name="scenario_file" value="$(arg scenario_file)"/>
-    <param name="model" value="$(arg model)"/>
-  </group>
-
-```
-
-
 ## 01 Data Recording
 To record data as csv file while doing evaluation runs set the flag `use_recorder:="true"` in your `roslaunch` command. For example:
 
