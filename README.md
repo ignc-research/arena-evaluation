@@ -10,6 +10,9 @@ It consists of 3 parts:
 - [Data recording](#01-data-recording)
 - [Data transformation and evaluation](#02-data-transformation-and-evaluation)
 - [Plotting](#03-plotting)
+
+<img  src="docs/imgs/arena-eval.png">
+
 ## General
 
 - To integrate arena evaluation into your project, see the guide [here](docs/integration-requirements.md)
