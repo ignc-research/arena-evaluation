@@ -11,7 +11,7 @@ It consists of 3 parts:
 - [Data transformation and evaluation](#02-data-transformation-and-evaluation)
 - [Plotting](#03-plotting)
 
-<img  src="docs/imgs/arena-eval.png">
+<img  src="overview image.png">
 
 ## General
 
