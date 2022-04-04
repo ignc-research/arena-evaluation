@@ -31,17 +31,17 @@ The following table gives you an insight into the variable type of the parameter
 
 ---
 ### One variable Visualization
-All of the parameters can be visualized using the one variable visualization, e.g. the `done-reason` parameter. As only ready to use example, we support the pie plot for our categorical variables, see the following example. For additional visualization tequniques, you can refere for example to [this](http://www.sthda.com/english/articles/32-r-graphics-essentials/133-plot-one-variable-frequency-graph-density-distribution-and-more/) resource.
+All of the parameters can be visualized using the one variable visualization, e.g. the `done-reason` parameter. As only ready to use example, we support the pie plot for our categorical variables, see the following example. For additional visualization tequniques, you can refer for example to [this](http://www.sthda.com/english/articles/32-r-graphics-essentials/133-plot-one-variable-frequency-graph-density-distribution-and-more/) resource.
+
+<p align="center">
+  <img src="/docs/imgs/qualitative-plots.png">
+</p>
 
 ---
 ### Two variable Visualization
 For visualizing two variables it is important to consider whether your variables are categorical/binary or continuous. 
 
-- categorical & categorical
 
-- categorical & continuous
-
-- continuous & continuous
 
 ---
 ### Three variable Visualization
