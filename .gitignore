@@ -1,5 +1,4 @@
 *.csv
 *.zip
-*.ftr
 .vscode
 test.ipynb
