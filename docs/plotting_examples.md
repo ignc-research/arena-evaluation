@@ -1,5 +1,5 @@
 # Introduction
-The performance of a robot can be measured by a number of different metrics. The appropriate visualization depends on the type of parameters selected. Within the bounds of readability, the following selection of parameters is possible:
+The performance of a robot can be measured by a number of different metrics. The appropriate visualization depends on the type of parameters selected. Within the bounds of readability, the following selection of parameters is advisable:
 - [One variable Visualization](#one-variable-visualization)
 - [Two variable Visualization](#two-variable-visualization)
 - [Three variable Visualization](#three-variable-visualization)
@@ -31,7 +31,17 @@ The following table gives you an insight into the variable type of the parameter
 
 ---
 ### One variable Visualization
+All of the parameters can be visualized using the one variable visualization, e.g. the `done-reason` parameter. As only ready to use example, we support the pie plot for our categorical variables, see the following example. For additional visualization tequniques, you can refere for example to [this](http://www.sthda.com/english/articles/32-r-graphics-essentials/133-plot-one-variable-frequency-graph-density-distribution-and-more/) resource.
+
 ---
 ### Two variable Visualization
+For visualizing two variables it is important to consider whether your variables are categorical/binary or continuous. 
+
+- categorical & categorical
+
+- categorical & continuous
+
+- continuous & continuous
+
 ---
 ### Three variable Visualization
