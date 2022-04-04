@@ -13,7 +13,7 @@ It consists of 3 parts:
 ## General
 
 - To integrate arena evaluation into your project, see the guide [here](docs/integration-requirements.md)
-- To use it alonge side with the arena repositoroy, install the following requirements:
+- To use it along side with the arena repository, install the following requirements:
 
 ```bash
 pip install scikit-learn seaborn pandas matplotlib
