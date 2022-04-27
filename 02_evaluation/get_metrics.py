@@ -63,11 +63,16 @@ class get_metrics():
                 print("INFO: Beginning data tranformation and evaluation for: {}".format(file_name))
                 df = self.extend_df(pd.read_csv(file, converters = {"laser_scan":self.string_to_float_list, "action": self.string_to_float_list}))
                 df = self.drop_last_episode(df)
-                data[file_name] = {
-                    "summary_df": self.get_summary_df(df).to_dict(orient = "list"),
-                    "paths_travelled": self.get_paths_travelled(df),
-                    "collision_zones": self.get_collision_zones(df)
-                }
+                if self.config["random_eval"]:
+                    data[file_name] = {
+                        "summary_df": self.get_summary_df(df).to_dict(orient = "list")
+                    }
+                else:
+                    data[file_name] = {
+                        "summary_df": self.get_summary_df(df).to_dict(orient = "list"),
+                        "paths_travelled": self.get_paths_travelled(df),
+                        "collision_zones": self.get_collision_zones(df)
+                    }
                 print("INFO: Data tranformation and evaluation finished for: {}".format(file_name))
             except Exception as e:
                 self.log_termination("INTERRUPTED", "EVALUATION ERROR: " + repr(e))
