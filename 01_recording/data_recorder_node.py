@@ -25,13 +25,14 @@ class recorder():
         # create rawdata csv file
         self.local_planner = rospy.get_param("local_planner")
         self.start = time.time()
+        self.start_rospy_time = rospy.get_time()
         self.dir_path = os.path.dirname(os.path.abspath(__file__)) # get path for current file, does not work if os.chdir() was used
         self.model = rospy.get_param("model","base_model")
         self.now = time.strftime("%y-%m-%d_%H-%M-%S")
         #'''
         self.waypoint_generator = rospy.get_param("waypoint_generator")
         self.record_only_planner = rospy.get_param("record_only_planner")
-        self.scenario = rospy.get_param("scenario_file").replace(".json","").replace("eval/","")
+        self.scenario = rospy.get_param("scenario_file").replace(".json","").replace("eval/","").replace("random_eval/","")
         ''' #for debugging:
         self.waypoint_generator = True# rospy.get_param("waypoint_generator")
         self.record_only_planner = True#rospy.get_param("record_only_planner")
@@ -90,7 +91,7 @@ class recorder():
         self.laserscan = [float("{:.3f}".format(min(msg_laserscan.ranges)))]
 
         #  check for termination criterion "max time"
-        # if time.time()-self.start > self.config["max_time"]:
+        # if rospy.get_time()-self.start_rospy_time > self.config["max_time"]:
         #     subprocess.call(["killall","-9","rosmaster"]) # apt-get install psmisc necessary
         #     sys.exit()
 
@@ -151,7 +152,7 @@ class recorder():
                     self.model]
                 ))
 
-        # check for termination criterion "max episodes"
+        # # check for termination criterion "max episodes"
         # if self.episode == self.config["max_episodes"]-1:
         #     subprocess.call(["killall","-9","rosmaster"]) # apt-get install psmisc necessary
         #     sys.exit()
