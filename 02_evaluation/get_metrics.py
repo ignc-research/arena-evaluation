@@ -71,10 +71,10 @@ class get_metrics():
                 print("INFO: Data tranformation and evaluation finished for: {}".format(file_name))
             except Exception as e:
                 self.log_termination("INTERRUPTED", "EVALUATION ERROR: " + repr(e))
-        with open(self.mount_path+"/data_{}.json".format(self.requestID), "w") as outfile:
+        with open(self.mount_path+"/data_{}.json".format(self.now), "w") as outfile:
             json.dump(data, outfile)
             outfile.close()
-        with open(self.mount_path+"/data_{}.txt".format(self.requestID), "w") as outfile:
+        with open(self.mount_path+"/data_{}.txt".format(self.now), "w") as outfile:
             outfile.write("\n".join(list(np.unique(planners))))
             outfile.close()
         self.grab_data(files)
