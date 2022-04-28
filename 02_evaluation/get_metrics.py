@@ -215,7 +215,7 @@ class get_metrics():
     def get_summary_df(self,df): # NOTE: column specification hardcoded !
         sum_df = df.groupby(["episode"]).sum()
         mean_df = df.groupby(["episode"]).mean()
-        summary_df = mean_df
+        summary_df = mean_df.round(2)
         summary_df["time"] = self.get_time(df)
         summary_df["collision"] = sum_df["collision"]
         summary_df["path_smoothness"] = sum_df["path_smoothness"]
