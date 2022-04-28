@@ -105,7 +105,7 @@ class get_metrics():
             warnings.simplefilter('ignore') 
             df["collision"] = self.get_collision(df,model)
             df["action_type"] = self.get_action_type(df)
-            df["min_obstacle_distance"] = [np.nanmin(x) for x in df["laser_scan"]]
+            df["min_obstacle_distance"] = [np.round(np.nanmin(x),2) for x in df["laser_scan"]]
             df["normalized_curvature"] = self.get_curvature(df)
             df["path_smoothness"] = self.get_path_smoothness(df)
             df["velocity_smoothness"] = self.get_velocity_smoothness(df)
@@ -147,19 +147,19 @@ class get_metrics():
 
     def calc_curvature(self,x,y,z): # Menger curvature of 3 points
         # side lengths
-        xy = np.abs(np.linalg.norm(x-y))
-        yz = np.abs(np.linalg.norm(y-z))
-        xz = np.abs(np.linalg.norm(z-x))
+        xy = np.linalg.norm(x-y)
+        yz = np.linalg.norm(y-z)
+        xz = np.linalg.norm(z-x)
         # herons formula for triangle area
         s = (xy + yz + xz)/2
-        triangle_area = (s * (s-xy) * (s-yz) + (s-xz))**0.5
+        triangle_area = (s * (s-xy) * (s-yz) * (s-xz))**0.5
         # metric calculation
         if triangle_area == 0: # identical points or collinear
             norm_curvature = 0
         else:
             curvature = 4*triangle_area / (xy * yz * xz) # menger curvature
             norm_curvature = curvature / (xy + yz) # normalize by path length of the section
-        return norm_curvature
+        return np.round(norm_curvature,2)
 
     def get_path_smoothness(self,df):
         path_smoothness_list = []
@@ -171,7 +171,7 @@ class get_metrics():
                     x = np.array(point)
                     x_prev = np.array(points[i-1])
                     x_succ = np.array(points[i+1])
-                    path_smoothness_list.append(self.calc_path_smoothness(x,y,z))
+                    path_smoothness_list.append(self.calc_path_smoothness(x,x_prev,x_succ))
                     continue
                 except:
                     path_smoothness_list.append(np.nan)
@@ -179,10 +179,10 @@ class get_metrics():
         return path_smoothness_list
 
     def calc_path_smoothness(self,x,x_prev,x_succ):
-        delta_1 = np.linalg.norm(x-x_prev)
-        delta_2 = np.linalg.norm(x_succ-x)
-        path_smoothness = np.abs(delta_2-delta_1)
-        return path_smoothness
+        delta_1 = x-x_prev
+        delta_2 = x_succ-x
+        path_smoothness = np.linalg.norm(delta_2-delta_1)
+        return np.round(path_smoothness)
 
     def get_velocity_smoothness(self,df):
         velocity_smoothness_list = []
@@ -204,8 +204,8 @@ class get_metrics():
         return velocity_smoothness_list
 
     def calc_velocity_smoothness(self,v1,v2,t1,t2):
-        velocity_smoothness = np.abs(np.linalg.norm(v2-v1)) / np.abs(t2-t1) # average of acceleration
-        return velocity_smoothness
+        velocity_smoothness = np.linalg.norm(v2-v1) / np.abs(t2-t1) # average of acceleration
+        return np.round(velocity_smoothness)
 
     def drop_last_episode(self,df):
         episodes = np.unique(df["episode"])
@@ -229,7 +229,7 @@ class get_metrics():
         episodes = np.unique(df["episode"])
         for episode in episodes:
             times = list(df.loc[df["episode"]==episode,"time"])
-            time_list.append(times[-1]-times[0])
+            time_list.append(np.round(times[-1]-times[0],2))
         return time_list
 
     def get_path_length(self,df):
@@ -243,7 +243,7 @@ class get_metrics():
                     continue
                 else:
                     path_length = path_length + np.linalg.norm(np.array(point)-np.array(points[i-1]))
-            path_length_list.append(path_length)
+            path_length_list.append(np.round(path_length,2))
         return path_length_list
 
     def get_success(self,summary_df):
