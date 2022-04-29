@@ -62,7 +62,8 @@ class get_metrics():
                 print("-------------------------------------------------------------------------------------------------")
                 print("INFO: Beginning data tranformation and evaluation for: {}".format(file_name))
                 df = self.extend_df(pd.read_csv(file, converters = {"laser_scan":self.string_to_float_list, "action": self.string_to_float_list}))
-                # df = self.drop_last_episode(df)
+                df = self.drop_first_episode(df)
+                df = self.drop_last_episode(df)
                 if self.config["random_eval"]:
                     data[file_name] = {
                         "summary_df": self.get_summary_df(df).to_dict(orient = "list")
