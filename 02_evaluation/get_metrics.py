@@ -212,6 +212,11 @@ class get_metrics():
         df = df.drop(df[df["episode"] == episodes[-1]].index)
         return df
 
+    def drop_first_episode(self,df):
+        episodes = np.unique(df["episode"])
+        df = df.drop(df[df["episode"] == episodes[0]].index)
+        return df
+
     def get_summary_df(self,df): # NOTE: column specification hardcoded !
         sum_df = df.groupby(["episode"]).sum()
         mean_df = df.groupby(["episode"]).mean()
