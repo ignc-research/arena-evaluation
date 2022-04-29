@@ -61,7 +61,9 @@ class get_metrics():
                 file_name = "--".join(file_name) # join together to only include local planner, map and obstacle number
                 print("-------------------------------------------------------------------------------------------------")
                 print("INFO: Beginning data tranformation and evaluation for: {}".format(file_name))
-                df = self.extend_df(pd.read_csv(file, converters = {"laser_scan":self.string_to_float_list, "action": self.string_to_float_list}))
+                df = pd.read_csv(file, converters = {"laser_scan":self.string_to_float_list, "action": self.string_to_float_list})
+                df = self.drop_elements(df)
+                df = self.extend_df(df)
                 df = self.drop_first_episode(df)
                 df = self.drop_last_episode(df)
                 if self.config["random_eval"]:
@@ -110,6 +112,25 @@ class get_metrics():
             df["normalized_curvature"] = self.get_curvature(df)
             df["path_smoothness"] = self.get_path_smoothness(df)
             df["velocity_smoothness"] = self.get_velocity_smoothness(df)
+        return df
+
+    def drop_last_episode(self,df):
+        episodes = np.unique(df["episode"])
+        df = df.drop(df[df["episode"] == episodes[-1]].index)
+        return df
+
+    def drop_first_episode(self,df):
+        episodes = np.unique(df["episode"])
+        df = df.drop(df[df["episode"] == episodes[0]].index)
+        return df
+
+    def drop_elements(self,df):
+        episodes = np.unique(df["episode"])
+        for episode in episodes:
+            indices = list(df[df["episode"] == episode].index)
+            number_of_drops = 3
+            drop_indices = indices[0:number_of_drops] + indices[-number_of_drops:]
+            df = df.drop(drop_indices)
         return df
 
     def get_collision(self,df,model):
@@ -207,16 +228,6 @@ class get_metrics():
     def calc_velocity_smoothness(self,v1,v2,t1,t2):
         velocity_smoothness = np.linalg.norm(v2-v1) / np.abs(t2-t1) # average of acceleration
         return np.round(velocity_smoothness)
-
-    def drop_last_episode(self,df):
-        episodes = np.unique(df["episode"])
-        df = df.drop(df[df["episode"] == episodes[-1]].index)
-        return df
-
-    def drop_first_episode(self,df):
-        episodes = np.unique(df["episode"])
-        df = df.drop(df[df["episode"] == episodes[0]].index)
-        return df
 
     def get_summary_df(self,df): # NOTE: column specification hardcoded !
         sum_df = df.groupby(["episode"]).sum()
