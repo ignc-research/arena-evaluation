@@ -86,10 +86,17 @@ class plotter():
     def get_map(self): # get map from df file name
         self.map_dir = rospkg.RosPack().get_path('simulator_setup') + "/maps"
         self.maps_dict = {x.split("/")[-2]:x for x in sorted(glob.glob("{0}/*/".format(self.map_dir)))}
+        map_found = False
         for key in self.keys:
             for map in sorted(self.maps_dict.keys()): # check if a map in /simulator_setup/maps fits scenario name
                 if map in key:
                     self.data[key]["map"] = map
+                    map_found = True
+            if not map_found:
+                if "random" in key:
+                    self.data[key]["map"] = "random"
+                else:
+                    self.data[key]["map"] = "not_found"
         self.maps = np.unique([self.data[key]["map"] for key in self.keys])
 
     def get_obstacle_number(self):
