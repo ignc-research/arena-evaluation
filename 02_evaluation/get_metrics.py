@@ -108,7 +108,7 @@ class get_metrics():
             warnings.simplefilter('ignore') 
             df["collision"] = self.get_collision(df,model)
             df["action_type"] = self.get_action_type(df)
-            df["min_obstacle_distance"] = [np.round(np.nanmin(x),2) for x in df["laser_scan"]]
+            df["min_obstacle_distance"] = [np.round(np.nanmin(x),3) for x in df["laser_scan"]]
             df["normalized_curvature"] = self.get_curvature(df)
             df["path_smoothness"] = self.get_path_smoothness(df)
             df["velocity_smoothness"] = self.get_velocity_smoothness(df)
@@ -181,7 +181,7 @@ class get_metrics():
         else:
             curvature = 4*triangle_area / (xy * yz * xz) # menger curvature
             norm_curvature = curvature / (xy + yz) # normalize by path length of the section
-        return np.round(norm_curvature,2)
+        return np.round(norm_curvature,3)
 
     def get_path_smoothness(self,df):
         path_smoothness_list = []
@@ -204,7 +204,7 @@ class get_metrics():
         delta_1 = x-x_prev
         delta_2 = x_succ-x
         path_smoothness = np.linalg.norm(delta_2-delta_1)
-        return np.round(path_smoothness)
+        return np.round(path_smoothness,3)
 
     def get_velocity_smoothness(self,df):
         velocity_smoothness_list = []
@@ -226,13 +226,13 @@ class get_metrics():
         return velocity_smoothness_list
 
     def calc_velocity_smoothness(self,v1,v2,t1,t2):
-        velocity_smoothness = np.linalg.norm(v2-v1) / np.abs(t2-t1) # average of acceleration
-        return np.round(velocity_smoothness)
+        velocity_smoothness = np.abs(np.linalg.norm(v2)-np.linalg.norm(v1)) / np.abs(t2-t1) # average of acceleration
+        return np.round(velocity_smoothness,3)
 
     def get_summary_df(self,df): # NOTE: column specification hardcoded !
-        sum_df = df.groupby(["episode"]).sum()
-        mean_df = df.groupby(["episode"]).mean()
-        summary_df = mean_df.round(2)
+        sum_df = df.groupby(["episode"]).sum().round(3)
+        mean_df = df.groupby(["episode"]).mean().round(3)
+        summary_df = mean_df#.round(2)
         summary_df["time"] = self.get_time(df)
         summary_df["collision"] = sum_df["collision"]
         summary_df["path_smoothness"] = sum_df["path_smoothness"]
@@ -246,7 +246,7 @@ class get_metrics():
         episodes = np.unique(df["episode"])
         for episode in episodes:
             times = list(df.loc[df["episode"]==episode,"time"])
-            time_list.append(np.round(times[-1]-times[0],2))
+            time_list.append(np.round(times[-1]-times[0],3))
         return time_list
 
     def get_path_length(self,df):
@@ -260,7 +260,7 @@ class get_metrics():
                     continue
                 else:
                     path_length = path_length + np.linalg.norm(np.array(point)-np.array(points[i-1]))
-            path_length_list.append(np.round(path_length,2))
+            path_length_list.append(np.round(path_length,3))
         return path_length_list
 
     def get_success(self,summary_df):
