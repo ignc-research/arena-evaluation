@@ -112,6 +112,19 @@ class plotter():
                 self.data[key]["obstacle_number"] = "base_obstacle_number"
         self.obstacle_numbers = np.unique([self.data[key]["obstacle_number"] for key in self.keys])
 
+    def get_repetition_number(self):
+        repetition_numbers = ["obs0"+str(x) for x in range(100)] + ["obs"+str(x)for x in range(100,1000)]
+        repetition_number_found = False
+        for key in self.keys:
+            for repetition_number in repetition_numbers: # check if a map in /simulator_setup/maps fits scenario name
+                if repetition_number in key:
+                    self.data[key]["repetition_number"] = repetition_number
+                    repetition_number_found = True
+        if repetition_number_found == False:
+            for key in self.keys:
+                self.data[key]["repetition_number"] = "base_repetition_number"
+        self.repetition_numbers = np.unique([self.data[key]["repetition_number"] for key in self.keys])
+
     def get_velocity(self):
         velocities = ["vel0"+str(x) for x in range(10)] + ["vel"+str(x)for x in range(10,100)]
         velocity_found = False
@@ -164,8 +177,12 @@ class plotter():
                     for key in vel_keys:
                         if self.data[key]["obstacle_number"] == obstacle_number:
                             obs_keys.append(key) # append key if obstacle_number matches current obstacle_number
-
-                    if len(obs_keys) == 0:
+                    repetition_key = []
+                    for repetition_number in self.repetition_numbers:
+                        for key in obs_keys:
+                            if self.data[key]["repetition_number"] == repetition_number:
+                                repetition_key.append(key) # append key if repetition_number matches current repetition_number
+                    if len(repetition_key) == 0:
                         continue
 
                     ### plotting part ###
