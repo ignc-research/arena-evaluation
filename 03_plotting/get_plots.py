@@ -15,7 +15,7 @@ import argparse, rospkg
 
 def parsing():
     parser = argparse.ArgumentParser(description='Create quantitative and qualitative plots for user.') # create parser object
-    parser.add_argument('--config', type=str, action='store', help='config yaml', default='get_plots_config.yaml') # store userID
+    parser.add_argument('--config', type=str, action='store', help='config yaml', default='get_plots_config_thesis.yaml') # store userID
     args = parser.parse_args()
     return args
 
