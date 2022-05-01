@@ -176,7 +176,7 @@ class get_metrics():
         s = (xy + yz + xz)/2
         triangle_area = (s * (s-xy) * (s-yz) * (s-xz))**0.5
         # metric calculation
-        if triangle_area == 0: # identical points or collinear
+        if (xy * yz * xz) == 0 or triangle_area == 0: # identical points or collinear
             norm_curvature = 0
         else:
             curvature = 4*triangle_area / (xy * yz * xz) # menger curvature
