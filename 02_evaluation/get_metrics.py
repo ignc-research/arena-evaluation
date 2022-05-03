@@ -50,7 +50,7 @@ class get_metrics():
     def evaluate_data(self): # read in all csv files and compute metrics
         print("INFO: Start data transformation and evaluation: {}".format(time.strftime("%H:%M:%S")))
         data = {}
-        files = glob.glob("{0}/*.csv".format(self.data_dir)) # get all the csv files paths in the directory
+        files = glob.glob("{0}/to_grab/*.csv".format(self.data_dir)) # get all the csv files paths in the directory
         planners = []
         if len(files) == 0:
             self.log_termination("INTERRUPTED", "NO FILES PROVIDED")
@@ -85,7 +85,7 @@ class get_metrics():
         with open(self.mount_path+"/data_{}.txt".format(self.now), "w") as outfile:
             outfile.write("\n".join(list(np.unique(planners))))
             outfile.close()
-        self.grab_data(files)
+        # self.grab_data(files)
         print("-------------------------------------------------------------------------------------------------")
         print("INFO: End data transformation and evaluation: {}".format(time.strftime("%y-%m-%d_%H:%M:%S")))
         self.log_termination("TERMINATED")
@@ -96,7 +96,7 @@ class get_metrics():
         for file in files:
             file_name = file.split("/")[-1]
             # move file from dir_path to data folder
-            os.rename(self.data_dir+"/"+file_name, self.mount_path +
+            os.rename(self.data_dir+"/to_grab/"+file_name, self.mount_path +
                       "/data_{}/".format(self.now)+file_name)
 
     def string_to_float_list(self,df_column): # convert list from csv saved as string to list of floats
