@@ -1,4 +1,5 @@
 from email.policy import default
+import enum
 import numpy as np
 import glob # usefull for listing all files of a type in a directory
 import os
@@ -552,6 +553,85 @@ class plotter():
                     plt.close()
 ### end of block obs in one plots ###
 
+### episode plots ###
+    def get_episode_plots(self):
+        os.mkdir(self.plot_dir + "/episode_plots")
+        metrics = list(self.data[self.keys[0]]["summary_df"].keys())
+        metrics.remove("success")
+        metrics.remove("done_reason")
+        ### iteration part ###
+        for map in self.maps:
+            map_keys = [] # list of keys with current map
+            for key in self.keys:
+                if self.data[key]["map"] == map:
+                    map_keys.append(key) # append key if map matches current map
+            for velocity in self.velocities:
+                vel_keys = [] # list of keys with current velocity
+                for key in map_keys:
+                    if self.data[key]["velocity"] == velocity:
+                        vel_keys.append(key) # append key if velocity matches current velocity
+                for obstacle_number in self.obstacle_numbers:
+                    obs_keys = [] # list of keys with the current obstacle number
+                    for key in sorted(vel_keys):
+                        if self.data[key]["obstacle_number"] == obstacle_number:
+                            obs_keys.append(key) # append key if obstacle_number matches current obstacle_number
+                    for planner in self.planners:
+                        planner_keys = [] # list of keys with current planner
+
+                        # grid
+                        if self.config["plot_quantitative_ygrid"]:
+                            sns.set_style("whitegrid")
+                        fig, axs = plt.subplots(len(metrics),len(self.repetition_numbers),sharex="col",sharey="row", figsize=(15,20))
+
+                        # create subtitle based on scenario information
+                        map_info = "Map: {}".format(map)
+                        if obstacle_number != "base_obstacle_number":
+                            obstacle_info = " Obstacles: {}".format(int(obstacle_number.replace("obs","")))
+                        else:
+                            obstacle_info = ""
+                        if velocity != "base_velocity":
+                            velocity_info = " Velocity: {0}.{1}".format(velocity.replace("vel","")[0], velocity.replace("vel","")[1])
+                        else:
+                            velocity_info = ""
+                        fig.suptitle("{0} ".format(self.config["labels"][planner])+map_info + obstacle_info + velocity_info, fontsize = self.config["plot_quantitative_suptitle_size"], fontweight = "bold")
+
+
+                        for key in obs_keys:
+                            if self.data[key]["planner"] == planner:
+                                planner_keys.append(key)
+                        for r,repetition_number in enumerate(self.repetition_numbers):
+                            repetition_keys = [] # list of keys with current repetition_number
+                            data = pd.DataFrame() # concat all summary_df of the planners into one and save planner in column
+                            for key in planner_keys:
+                                if self.data[key]["repetition_number"] == repetition_number:
+                                    repetition_keys.append(key) # append key if repetition_number matches current repetition_number
+                                    dat = pd.DataFrame(self.data[key]["summary_df"]) # concat the summary_df of that key (planner)
+                                    dat["planner"] = self.data[key]["planner"]
+                                    dat["episode"] = dat.index
+                                    data = pd.concat([data,dat])
+
+                            # test
+                            for m,metric in enumerate(metrics):
+                                sns.barplot(ax=axs[m,r],x=list(data["episode"]), y=list(data[metric]))
+                                axs[m,r].hlines(y=np.nanmean(list(data[metric])),colors=["black"],xmin=0,xmax=len(list(data["episode"]))-1,zorder=5)
+                                if r == 0:
+                                    axs[m,r].set_ylabel(self.config["plot_quantitative_labels"][metric])
+                                if m == len(metrics)-1:
+                                    axs[m,r].set_xlabel("Episode")
+                                for i,label in enumerate(axs[m,r].xaxis.get_ticklabels()):
+                                    label.set_visible(False)
+                                    if r >= 3:
+                                        interval = 10
+                                    else:
+                                        interval = 5
+                                    if i % interval == 0 or i == 0:
+                                        label.set_visible(True)
+                                # text box with mean and standard deviation (df-1)
+                                axs[m,r].annotate("mean: {0:.2f} sd: {1:.2f} median: {2:.2f}".format(np.nanmean(list(data[metric])),np.nanstd(list(data[metric]),ddof=1),np.nanmedian(list(data[metric]))), xy=(0.01,0.9),xycoords='axes fraction',fontsize=8)
+
+                        plt.savefig(self.plot_dir + "/episode_plots/{0}_{1}_{2}_{3}".format(planner,map,obstacle_number,velocity), bbox_inches='tight')
+### end of block episode plots ###
+
 ### latex table ###
     def get_latex_table(self):
         ### iteration part ###
@@ -656,5 +736,7 @@ if __name__=="__main__":
         Plotter.get_quantitative_plots()
     if Plotter.config["plot_obs_in_one"]:
         Plotter.get_obs_in_one_plots()
+    if Plotter.config["plot_episode_plots"]:
+        Plotter.get_episode_plots()
     if Plotter.config["latex"]:
         Plotter.get_latex_table()

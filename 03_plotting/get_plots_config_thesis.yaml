@@ -31,6 +31,8 @@ color_scheme:
   navrep_rto: tab:purple
   navrep_turtlebot3_burger: tab:purple
   navrep_youbot: tab:purple
+  rlca_burger: tab:purple
+  rosnav_burger: tab:blue
   rosnav_jackal: tab:blue
   rosnav_rto: tab:blue
   rosnav_turtlebot3_burger: tab:blue
@@ -76,6 +78,8 @@ labels:
   navrep_rto: NAVREP
   navrep_turtlebot3_burger: NAVREP
   navrep_youbot: NAVREP
+  rlca_burger: RLCA
+  rosnav_burger: ROSNAV
   rosnav_jackal: ROSNAV
   rosnav_rto: ROSNAV
   rosnav_turtlebot3_burger: ROSNAV
@@ -94,7 +98,7 @@ leave_out_metric:
 - cusps
 leave_out_planner:
 - ''
-most_recent_file: data_22-05-01_11-34-50.json
+most_recent_file: data_22-05-02_23-08-48.json
 obstacle_color: black
 obstacle_radius: 0.3
 path_alpha: 1.0
@@ -126,7 +130,7 @@ plot_qualitative_legend_fontsize: 10
 plot_qualitative_legend_location: lower right
 plot_qualitative_title: true
 plot_qualitative_title_size: 16
-plot_quantitative: true
+plot_quantitative: false
 plot_quantitative_axes_label_size: 14
 plot_quantitative_axes_tick_size: 10
 plot_quantitative_labels:
@@ -170,3 +174,4 @@ specify_data: false
 start_marker: ^
 start_point_color: tab:grey
 start_size: 20
+plot_episode_plots: true
