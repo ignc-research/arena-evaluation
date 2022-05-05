@@ -42,7 +42,7 @@ class recorder():
         if self.record_only_planner:
             with open(self.dir_path+"/{0}_{1}--{2}--{3}.csv".format(self.local_planner,self.model,self.scenario,self.now), "w+", newline = "") as file:
                 writer = csv.writer(file, delimiter = ',')
-                header = [["episode","time","laser_scan","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action","model"]]
+                header = [["episode","time","laser_scan","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action"]]
                 writer.writerows(header)
                 file.close()
         else:
