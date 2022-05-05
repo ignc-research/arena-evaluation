@@ -147,8 +147,7 @@ class recorder():
                     self.robot_orientation,
                     self.robot_pos_x,
                     self.robot_pos_y,
-                    self.action,
-                    self.model]
+                    self.action]
                 ))
 
         # check for termination criterion "max episodes"
