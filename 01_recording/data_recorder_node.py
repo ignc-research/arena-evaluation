@@ -42,13 +42,13 @@ class recorder():
         if self.record_only_planner:
             with open(self.dir_path+"/{0}_{1}--{2}--{3}.csv".format(self.local_planner,self.model,self.scenario,self.now), "w+", newline = "") as file:
                 writer = csv.writer(file, delimiter = ',')
-                header = [["episode","time","laser_scan","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action"]]
+                header = [["episode","time","laser_scan","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action","model"]]
                 writer.writerows(header)
                 file.close()
         else:
             with open(self.dir_path+"/{0}_{1}_{2}--{3}--{4}.csv".format(self.local_planner,self.waypoint_generator,self.model,self.scenario,self.now), "w+", newline = "") as file:
                 writer = csv.writer(file, delimiter = ',')
-                header = [["episode","time","laser_scan","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action"]]
+                header = [["episode","time","laser_scan","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action","model"]]
                 writer.writerows(header)
                 file.close()
 
@@ -147,7 +147,8 @@ class recorder():
                     self.robot_orientation,
                     self.robot_pos_x,
                     self.robot_pos_y,
-                    self.action]
+                    self.action,
+                    self.model]
                 ))
 
         # check for termination criterion "max episodes"
