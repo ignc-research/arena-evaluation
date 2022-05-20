@@ -90,9 +90,9 @@ class recorder():
         self.laserscan = [float("{:.3f}".format(min(msg_laserscan.ranges)))]
 
         #  check for termination criterion "max time"
-        # if time.time()-self.start > self.config["max_time"]:
-        #     subprocess.call(["killall","-9","rosmaster"]) # apt-get install psmisc necessary
-        #     sys.exit()
+        if time.time()-self.start > self.config["max_time"]:
+            subprocess.call(["killall","-9","rosmaster"]) # apt-get install psmisc necessary
+            sys.exit()
 
     def odometry_callback(self, msg_Odometry: Odometry):
         pose3d = msg_Odometry.pose.pose
@@ -152,9 +152,9 @@ class recorder():
                 ))
 
         # check for termination criterion "max episodes"
-        # if self.episode == self.config["max_episodes"]-1:
-        #     subprocess.call(["killall","-9","rosmaster"]) # apt-get install psmisc necessary
-        #     sys.exit()
+        if self.episode == self.config["max_episodes"]-1:
+            subprocess.call(["killall","-9","rosmaster"]) # apt-get install psmisc necessary
+            sys.exit()
 
     def addData(self, data:np.array): #add new row to the csv file
         if self.record_only_planner:
