@@ -62,7 +62,7 @@ class get_metrics():
                 print("-------------------------------------------------------------------------------------------------")
                 print("INFO: Beginning data tranformation and evaluation for: {}".format(file_name))
                 df = pd.read_csv(file, converters = {"laser_scan":self.string_to_float_list, "action": self.string_to_float_list})
-                df = self.drop_elements(df)
+                # df = self.drop_elements(df)
                 df = self.extend_df(df)
                 df = self.drop_first_episode(df)
                 df = self.drop_last_episode(df)

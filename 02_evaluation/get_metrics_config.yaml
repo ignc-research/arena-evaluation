@@ -9,4 +9,4 @@ robot_radius:
   youbot: 0.347
 time_out_treshold: 180
 collision_treshold: 2
-random_eval: true
+random_eval: false
