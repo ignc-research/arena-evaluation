@@ -97,8 +97,10 @@ latex: false
 leave_out_metric:
 - cusps
 leave_out_planner:
-- ''
-most_recent_file: data_22-05-02_23-08-48.json
+- rlca_burger
+- rlca
+- RLCA
+most_recent_file: data_22-05-08_17-48-15.json
 obstacle_color: black
 obstacle_radius: 0.3
 path_alpha: 1.0
@@ -112,6 +114,7 @@ plot_barplot_errorcolor: black
 plot_barplot_width: 0.5
 plot_collision_zones: true
 plot_collisions: true
+plot_episode_plots: false
 plot_obs_in_one: false
 plot_obs_in_one_alpha: 1.0
 plot_obs_in_one_axes_tick_size: 16
@@ -121,46 +124,46 @@ plot_obs_in_one_errorcolor: black
 plot_progression: false
 plot_progression_size: 3
 plot_progression_steps: 20
-plot_qualitative: false
+plot_qualitative: true
 plot_qualitative_axes: true
 plot_qualitative_axes_size: 16
 plot_qualitative_axes_ticks_size: 16
-plot_qualitative_legend: false
+plot_qualitative_legend: true
 plot_qualitative_legend_fontsize: 10
-plot_qualitative_legend_location: lower right
+plot_qualitative_legend_location: upper right
 plot_qualitative_title: true
-plot_qualitative_title_size: 16
+plot_qualitative_title_size: 18
 plot_quantitative: false
-plot_quantitative_axes_label_size: 14
-plot_quantitative_axes_tick_size: 10
+plot_quantitative_axes_label_size: 16
+plot_quantitative_axes_tick_size: 14
 plot_quantitative_labels:
   angle_over_length: Angle over Length
   collision: Collisions
-  computation_time: Computation Time in [s]
+  computation_time: Computation Time
   cusps: Cusps
-  jerk: Movement Jerk in [$\frac{m}{s^{3}}$]
-  max_clearing_distance: Max. Clearing Distance in [m]
+  jerk: Movement Jerk
+  max_clearing_distance: Max. Clearing Distance
   max_curvature: Max. Curvature
-  mean_clearing_distance: Mean Clearing Distance in [m]
-  median_clearing_distance: Median Clearing Distance in [m]
-  min_clearing_distance: Min. Clearing Distance in [m]
-  min_obstacle_distance: Min. Obstacle Distance [m]
-  normalized_curvature: Normalized Curvature [$\frac{1}{m^{2}}$]
+  mean_clearing_distance: Mean Clearing Distance
+  median_clearing_distance: Median Clearing Distance
+  min_clearing_distance: Min. Clearing Distance
+  min_obstacle_distance: Min. Obs. Distance
+  normalized_curvature: Norm. Curvature
   obstacle_number: Obstacle Number
-  path_length: Path Length in [m]
+  path_length: Path Length
   path_smoothness: Path Smoothness
   planner: Planner
   roughness: Path Roughness
   success: Success Rate
-  time: Time Traveled in [s]
-  velocity_smoothness: Velocity Smoothness [$\frac{m}{s^{2}}$]
+  time: Time Traveled
+  velocity_smoothness: Velocity Smoothness
 plot_quantitative_legend: false
 plot_quantitative_legend_fontsize: 10
 plot_quantitative_legend_location: upper left
 plot_quantitative_suptitle: true
-plot_quantitative_suptitle_size: 16
+plot_quantitative_suptitle_size: 20
 plot_quantitative_title: true
-plot_quantitative_title_size: 12
+plot_quantitative_title_size: 14
 plot_quantitative_violin: false
 plot_quantitative_violin_inner: point
 plot_quantitative_ygrid: true
@@ -174,4 +177,3 @@ specify_data: false
 start_marker: ^
 start_point_color: tab:grey
 start_size: 20
-plot_episode_plots: true
