@@ -212,8 +212,8 @@ class plotter():
                                 linewidth = 2)
 
                             x,y = to_ros_coords(paths[episode], img, map_resolution, map_origin)
-                            x = x[3:-3] # NOTE: sometimes episode is wrongly assigned _> skip first and last coordinates
-                            y = y[3:-3]
+                            x = x[10:-10] # NOTE: sometimes episode is wrongly assigned _> skip first and last coordinates
+                            y = y[10:-10]
                             plt.plot(x,y,
                             "-",
                             color = self.config["color_scheme"][planner],
@@ -300,7 +300,7 @@ class plotter():
                     plt.close()
 
     def plot_scenario(self, keys, img,  map_resolution, map_origin):
-        scenario_dir = rospkg.RosPack().get_path('simulator_setup') + "/scenarios"
+        scenario_dir = rospkg.RosPack().get_path('simulator_setup') + "/scenarios/eval"
         scenario_dict = {x.split("/")[-1].replace(".json",""):x for x in sorted(glob.glob("{0}/*.json".format(scenario_dir)))}
         for scene in sorted(scenario_dict.keys()): # check if a map in /simulator_setup/maps fits scenario name
             if scene in keys[0]:
@@ -575,13 +575,17 @@ class plotter():
                     for key in sorted(vel_keys):
                         if self.data[key]["obstacle_number"] == obstacle_number:
                             obs_keys.append(key) # append key if obstacle_number matches current obstacle_number
+                    table_data = pd.DataFrame(columns=["Metric","Planner","Repetitions","Mean","Std.","Median","CI 90%","S.S. 10%","S.S. 15%"]) # table
+                    metric_list = []
+                    from scipy import stats
                     for planner in self.planners:
                         planner_keys = [] # list of keys with current planner
+                        table_planner = self.config["labels"][planner] # table
 
                         # grid
                         if self.config["plot_quantitative_ygrid"]:
                             sns.set_style("whitegrid")
-                        fig, axs = plt.subplots(len(metrics),len(self.repetition_numbers),sharex="col",sharey="row", figsize=(15,20))
+                        fig, axs = plt.subplots(len(metrics),len(self.repetition_numbers),sharex="col",sharey="row", figsize=(14,14))
 
                         # create subtitle based on scenario information
                         map_info = "Map: {}".format(map)
@@ -593,7 +597,7 @@ class plotter():
                             velocity_info = " Velocity: {0}.{1}".format(velocity.replace("vel","")[0], velocity.replace("vel","")[1])
                         else:
                             velocity_info = ""
-                        fig.suptitle("{0} ".format(self.config["labels"][planner])+map_info + obstacle_info + velocity_info, fontsize = self.config["plot_quantitative_suptitle_size"], fontweight = "bold")
+                        # fig.suptitle("{0} ".format(self.config["labels"][planner])+map_info + obstacle_info + velocity_info, fontsize = self.config["plot_quantitative_suptitle_size"], fontweight = "bold")
 
 
                         for key in obs_keys:
@@ -601,6 +605,7 @@ class plotter():
                                 planner_keys.append(key)
                         for r,repetition_number in enumerate(self.repetition_numbers):
                             repetition_keys = [] # list of keys with current repetition_number
+                            table_repetition = int(repetition_number.replace("rep","")) # table
                             data = pd.DataFrame() # concat all summary_df of the planners into one and save planner in column
                             for key in planner_keys:
                                 if self.data[key]["repetition_number"] == repetition_number:
@@ -614,21 +619,66 @@ class plotter():
                             for m,metric in enumerate(metrics):
                                 sns.barplot(ax=axs[m,r],x=list(data["episode"]), y=list(data[metric]))
                                 axs[m,r].hlines(y=np.nanmean(list(data[metric])),colors=["black"],xmin=0,xmax=len(list(data["episode"]))-1,zorder=5)
-                                if r == 0:
-                                    axs[m,r].set_ylabel(self.config["plot_quantitative_labels"][metric])
+                                # if r == 0:
+                                #     axs[m,r].set_ylabel(self.config["plot_quantitative_labels"][metric])
+                                #     axs[m,r].yaxis.get_label().set_fontsize(14)
                                 if m == len(metrics)-1:
-                                    axs[m,r].set_xlabel("Episode")
-                                for i,label in enumerate(axs[m,r].xaxis.get_ticklabels()):
+                                    axs[m,r].set_xlabel("Episode", fontsize = 14)
+                                    axs[m,r].xaxis.get_label().set_fontsize(14)
+                                for i,label in enumerate(axs[m,r].xaxis.get_ticklabels()): # show every 5th x label and if 
                                     label.set_visible(False)
-                                    if r >= 3:
+                                    if len(np.unique(dat["episode"])) > 30:
                                         interval = 10
                                     else:
                                         interval = 5
                                     if i % interval == 0 or i == 0:
                                         label.set_visible(True)
+                                # for i,label in enumerate(axs[m,r].yaxis.get_ticklabels()): # hide y labels
+                                #     label.set_visible(False)
                                 # text box with mean and standard deviation (df-1)
-                                axs[m,r].annotate("mean: {0:.2f} sd: {1:.2f} median: {2:.2f}".format(np.nanmean(list(data[metric])),np.nanstd(list(data[metric]),ddof=1),np.nanmedian(list(data[metric]))), xy=(0.01,0.9),xycoords='axes fraction',fontsize=8)
+                                axs[m,r].tick_params(axis='y', which='major', labelsize=14)
+                                axs[m,r].annotate(r"$\bar{x}$:" +
+                                " {0:.4f} ".format(np.nanmean(list(data[metric]))) +
+                                "$s$:" +
+                                " {0:.4f} ".format(np.nanstd(list(data[metric]),ddof=1)) + 
+                                r"$\tilde{x}$:" +
+                                " {0:.4f}".format(np.nanmedian(list(data[metric]))), xy=(0.01,0.9),xycoords='axes fraction',fontsize=12)
 
+                                # table
+                                table_metric = self.config["plot_quantitative_labels"][metric]
+                                metric_list.append(table_metric)
+                                table_mean = np.round(np.nanmean(list(data[metric])),4)
+                                table_std = np.round(np.nanstd(list(data[metric]),ddof=1),4)
+                                table_median = np.round(np.nanmedian(list(data[metric])),4)
+                                # confidence interval
+                                tinv = stats.t.ppf(1-0.05, table_repetition-1)
+                                table_ci = "[{};{}]".format(
+                                    np.round(table_mean-tinv*table_std/np.sqrt(table_repetition),4),
+                                    np.round(table_mean+tinv*table_std/np.sqrt(table_repetition),4)
+                                )
+                                table_ss10 = np.round((table_std*tinv/(table_mean*0.1))**2,4)
+                                table_ss15 = np.round((table_std*tinv/(table_mean*0.15))**2,4)
+                                table_line = {
+                                    "Metric":[table_metric],
+                                    "Planner":[table_planner],
+                                    "Repetitions": table_repetition,
+                                    "Mean": [table_mean],
+                                    "Std.": [table_std],
+                                    "Median": [table_median],
+                                    "CI 90%": [table_ci],
+                                    "S.S. 10%": [table_ss10],
+                                    "S.S. 15%": [table_ss15]
+                                }
+                                table_data = pd.concat([table_data,pd.DataFrame(table_line)])
+                                table_data = table_data.sort_values(["Metric","Planner"])
+                        to_latex_table = {}
+                        for m in np.unique(metric_list):
+                            to_latex_table[m] = table_data.loc[table_data["Metric"]==m]
+                        text_file = open(self.plot_dir+"/table_data.txt", "w")
+                        for t in to_latex_table:
+                            text_file.write("\nTable for: "+t+"\n")
+                            text_file.write(to_latex_table[t].to_latex(index=False))
+                        text_file.close()
                         plt.savefig(self.plot_dir + "/episode_plots/{0}_{1}_{2}_{3}".format(planner,map,obstacle_number,velocity), bbox_inches='tight')
 ### end of block episode plots ###
 
