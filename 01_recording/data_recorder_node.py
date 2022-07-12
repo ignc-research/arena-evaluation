@@ -35,6 +35,8 @@ class recorder():
         self.record_only_planner = rospy.get_param("record_only_planner")
         self.scenario = rospy.get_param("scenario_file").replace(".json","").replace("eval/","")
         self.robot_radius = rospy.get_param("/radius")
+        self.robot_max_speed = rospy.get_param("/speed")
+        self.map = rospy.get_param("/map_file")
 
         ''' #for debugging:
         self.waypoint_generator = True# rospy.get_param("waypoint_generator")
@@ -46,13 +48,13 @@ class recorder():
         if self.record_only_planner:
             with open(self.dir_path+"/{0}_{1}--{2}--{3}.csv".format(self.local_planner,self.model,self.scenario,self.now), "w+", newline = "") as file:
                 writer = csv.writer(file, delimiter = ',')
-                header = [["episode","time","laser_scan","robot_radius","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action","model", "number_dynamic_obs", "form_dynamic_obs", "size_dynamic_obs", "speed_dynamic_obs", "number_static_obs", "form_static_obs", "size_static_obs"]]
+                header = [["episode","map","time","done_reason","collision","laser_scan","robot_model","robot_radius","robot_max_speed","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action", "number_dynamic_obs", "form_dynamic_obs", "size_dynamic_obs", "speed_dynamic_obs", "number_static_obs", "form_static_obs", "size_static_obs"]]
                 writer.writerows(header)
                 file.close()
         else:
             with open(self.dir_path+"/{0}_{1}_{2}--{3}--{4}.csv".format(self.local_planner,self.waypoint_generator,self.model,self.scenario,self.now), "w+", newline = "") as file:
                 writer = csv.writer(file, delimiter = ',')
-                header = [["episode","time","laser_scan","robot_radius","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action", "number_dynamic_obs", "form_dynamic_obs", "size_dynamic_obs", "speed_dynamic_obs", "number_static_obs", "form_static_obs", "size_static_obs"]]
+                header = [["episode","map","time","done_reason","collision","laser_scan","robot_model","robot_radius","robot_max_speed","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action", "number_dynamic_obs", "form_dynamic_obs", "size_dynamic_obs", "speed_dynamic_obs", "number_static_obs", "form_static_obs", "size_static_obs"]]
                 writer.writerows(header)
                 file.close()
 
@@ -82,7 +84,8 @@ class recorder():
         self.static_obs_form = ["None"]
         self.static_obs_size = ["None"]
 
-        self.done_reason = ""
+        self.done_reason = ["None"]
+        self.collision = False
         #--------------------------
         
 
@@ -103,7 +106,6 @@ class recorder():
         rospy.Subscriber("/obstacles/static/radius", String, self.static_size_callback)
 
         rospy.Subscriber("/done_reason", String, self.done_reason_callback)
-
         #--------------------------------
 
 
@@ -112,7 +114,7 @@ class recorder():
 
     # Ricardo new line
     def done_reason_callback(self, msg: String):
-        self.done_reason = msg.data
+        self.done_reason = [msg.data]
 
     def dynamic_number_callback(self, msg: Int32):
         self.dynamic_obs_number = msg.data
@@ -149,10 +151,16 @@ class recorder():
     # define callback function for all variables and their respective topics
     def episode_callback(self, msg_scenario_reset: Int16):
         self.episode = msg_scenario_reset.data
+        self.done_reason = ["None"]
         self.clear_costmaps()
 
     def laserscan_callback(self, msg_laserscan: LaserScan):
         self.laserscan = [float("{:.3f}".format(min(msg_laserscan.ranges)))]
+        
+        if min(msg_laserscan.ranges) <= self.robot_radius:
+            self.collision = True
+        else:
+            self.collision = False
 
         #  check for termination criterion "max time"
         # if time.time()-self.start > self.config["max_time"]:
@@ -204,9 +212,14 @@ class recorder():
                 self.last_action_time = current_simulation_action_time
                 self.addData(np.array(
                     [self.episode,
+                    self.map,
                     float("{:.3f}".format(current_simulation_action_time)),
+                    self.done_reason,
+                    self.collision,
                     list(self.laserscan),
+                    self.model,
                     self.robot_radius,
+                    self.robot_max_speed,
                     self.robot_lin_vel_x,
                     self.robot_lin_vel_y,
                     self.robot_ang_vel,
@@ -214,13 +227,11 @@ class recorder():
                     self.robot_pos_x,
                     self.robot_pos_y,
                     self.action,
-                    self.model,
                     # Ricardo new line
                     self.dynamic_obs_number,
                     self.dynamic_obs_form,
                     self.dynamic_obs_size,
                     self.dynamic_obs_speed,
-
                     self.static_obs_number,
                     self.static_obs_form,
                     self.static_obs_size
