@@ -48,13 +48,13 @@ class recorder():
         if self.record_only_planner:
             with open(self.dir_path+"/{0}_{1}--{2}--{3}.csv".format(self.local_planner,self.model,self.scenario,self.now), "w+", newline = "") as file:
                 writer = csv.writer(file, delimiter = ',')
-                header = [["episode","map","time","done_reason","collision","laser_scan","robot_model","robot_radius","robot_max_speed","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action", "number_dynamic_obs", "form_dynamic_obs", "size_dynamic_obs", "speed_dynamic_obs", "number_static_obs", "form_static_obs", "size_static_obs"]]
+                header = [["episode","map","local_planner","time","done_reason","collision","laser_scan","robot_model","robot_radius","robot_max_speed","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action", "number_dynamic_obs", "form_dynamic_obs", "size_dynamic_obs", "speed_dynamic_obs", "number_static_obs", "form_static_obs", "size_static_obs"]]
                 writer.writerows(header)
                 file.close()
         else:
             with open(self.dir_path+"/{0}_{1}_{2}--{3}--{4}.csv".format(self.local_planner,self.waypoint_generator,self.model,self.scenario,self.now), "w+", newline = "") as file:
                 writer = csv.writer(file, delimiter = ',')
-                header = [["episode","map","time","done_reason","collision","laser_scan","robot_model","robot_radius","robot_max_speed","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action", "number_dynamic_obs", "form_dynamic_obs", "size_dynamic_obs", "speed_dynamic_obs", "number_static_obs", "form_static_obs", "size_static_obs"]]
+                header = [["episode","map","local_planner","time","done_reason","collision","laser_scan","robot_model","robot_radius","robot_max_speed","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action", "number_dynamic_obs", "form_dynamic_obs", "size_dynamic_obs", "speed_dynamic_obs", "number_static_obs", "form_static_obs", "size_static_obs"]]
                 writer.writerows(header)
                 file.close()
 
@@ -213,6 +213,7 @@ class recorder():
                 self.addData(np.array(
                     [self.episode,
                     self.map,
+                    self.local_planner,
                     float("{:.3f}".format(current_simulation_action_time)),
                     self.done_reason,
                     self.collision,
@@ -227,7 +228,6 @@ class recorder():
                     self.robot_pos_x,
                     self.robot_pos_y,
                     self.action,
-                    # Ricardo new line
                     self.dynamic_obs_number,
                     self.dynamic_obs_form,
                     self.dynamic_obs_size,
@@ -235,7 +235,6 @@ class recorder():
                     self.static_obs_number,
                     self.static_obs_form,
                     self.static_obs_size
-                    #--------------------
                     ], dtype="object"
                 ))
 
