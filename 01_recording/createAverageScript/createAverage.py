@@ -2,9 +2,10 @@ import os
 from numpy import empty
 import pandas as pd
 import glob
-import sys
 import warnings
 import pathlib as pl
+from argparse import ArgumentParser
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class RecordedAverage:
@@ -14,7 +15,7 @@ class RecordedAverage:
 
 
     def initCSVDf():
-        lst = list(range(0,20))
+        lst = list(range(0,15))
         append_str = "speed_dynamic_obs_"
         speed_dynamic_obs_column = [append_str + str(sub) for sub in lst]
         append_str = "size_dynamic_obs_"
@@ -29,29 +30,11 @@ class RecordedAverage:
         df = pd.DataFrame(columns=columnList)
         return df
 
-    def createAverages():
+    def createAverages(args):
         averagesCSVOutput = pd.DataFrame()
 
-        # holds the expected number of command line arguments (CSV path, images path and output path)
-        expectedNumberOfCommandlineArguments = 3
-
-        # reads the command line arguements 
-        commandLineArguments = sys.argv
-
-        pathToCSV = ""
-        pathToImageFolder = ""
-
-        if(len(commandLineArguments) != expectedNumberOfCommandlineArguments):
-            #print("Wrong command line arguments. Please specify the path to the directory containing the CSV files")
-
-            pathToCSV = "../project_recordings"
-            pathToImageFolder = "../../../../arena-rosnav-noetic-devel-branch/simulator_setup/maps"
-        else:
-            # hold the path to the csv file which should be used as input
-            pathToCSV = commandLineArguments[1]
-            # holds the path to the folder containing the folder of the different maps
-            pathToImageFolder = commandLineArguments[2]
-        
+        pathToCSV = args.csv_path
+        pathToImageFolder = args.image_path
         
         print("path to the directory containing the CSV files:", pathToCSV)  
         
@@ -79,12 +62,10 @@ class RecordedAverage:
         
             csvAverage = RecordedAverage.calculateCSVAverage(RecordedAverage.episodeAverages)
             averagesCSVOutput = averagesCSVOutput.append(csvAverage)
+  
+        if (args.run_wcs == True):
+            os.system("/bin/python3 $(pwd)/world_complexity.py --folders_path {}".format(pathToImageFolder))
 
-            #csvFilename = "{}/averages.csv".format(outputPath)
-            #with open(csvFilename, 'a') as f:
-            #    csvAverage.to_csv(f, mode='a', header=f.tell()==0, index=False)
-
-        # TODO os.system("/bin/python3 $(pwd)/world_complexity.py --folders_path {}".format(pathToImageFolder))
         worldComplexityData = pd.read_csv("{}/map_worldcomplexity_results.csv".format(pathToImageFolder))
         
         RecordedAverage.combineAveragesAndWorldComplexity(averagesCSVOutput,worldComplexityData, outputPath)
@@ -130,12 +111,7 @@ class RecordedAverage:
             "collision" :"collision_rate"
             })
 
-        path = pl.Path("{}/data".format(outputPath))
 
-        path.mkdir(parents=True, exist_ok=True)
-
-
-        
         csvFilename = "{}/CombinedAverages.csv".format(outputPath)
         with open(csvFilename, 'w') as f:
             combinedDataFrame.to_csv(f, mode='w', header=f.tell()==0, index=False)
@@ -202,7 +178,6 @@ class RecordedAverage:
 
         currentRobot = data["robot_model"][0]
         currentMapName = data["map"][0]
-        currentEpisode = data.loc[0][0]
 
         # Drop unnecessary columns
         data = data.drop(columns=["laser_scan",
@@ -318,5 +293,32 @@ class RecordedAverage:
         return True    
 
 if __name__ == "__main__":
-    RecordedAverage.createAverages()
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--image_path",
+        action="store",
+        dest="image_path",
+        default=f"../../../../arena-rosnav-noetic-devel-branch/simulator_setup/maps",
+        help="path to the floor plan of your world. Usually in .pgm format",
+        required=False,
+    )
+    parser.add_argument(
+        "--csv_path",
+        action="store",
+        dest="csv_path",
+        default=f"../project_recordings",
+        help="path to the csv file you want to use as input",
+        required=False,
+    )
+    parser.add_argument(
+        "--run_wcs",
+        action="store",
+        dest="run_wcs",
+        default=True,
+        help="indicates if the world complexity script should be executed",
+        required=False,
+    )
 
+    args = parser.parse_args()
+    
+    RecordedAverage.createAverages(args)
