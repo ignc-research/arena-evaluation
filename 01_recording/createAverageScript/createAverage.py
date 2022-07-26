@@ -38,15 +38,22 @@ class RecordedAverage:
         # reads the command line arguements 
         commandLineArguments = sys.argv
 
+        pathToCSV = ""
+        pathToImageFolder = ""
+
         if(len(commandLineArguments) != expectedNumberOfCommandlineArguments):
-            print("Wrong command line arguments. Please specify the path to the directory containing the CSV files")
+            #print("Wrong command line arguments. Please specify the path to the directory containing the CSV files")
+
+            pathToCSV = "../project_recordings"
+            pathToImageFolder = "../../../../arena-rosnav-noetic-devel-branch/simulator_setup/maps"
+        else:
+            # hold the path to the csv file which should be used as input
+            pathToCSV = commandLineArguments[1]
+            # holds the path to the folder containing the folder of the different maps
+            pathToImageFolder = commandLineArguments[2]
         
-        # hold the path to the csv file which should be used as input
-        pathToCSV = commandLineArguments[1]
+        
         print("path to the directory containing the CSV files:", pathToCSV)  
-        
-        # holds the path to the folder containing the folder of the different maps
-        pathToImageFolder = commandLineArguments[2]
         
         # stored the path where the output should be written to
         outputPath = "{}/CSVaverages/".format(pathToCSV)
