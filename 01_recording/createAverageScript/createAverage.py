@@ -8,13 +8,25 @@ from argparse import ArgumentParser
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-class RecordedAverage:
-    currentMapName = None
-    currentRobot = None
-    episodeAverages = pd.DataFrame()
-
-
-    def initCSVDf():
+class CSVFormat:
+    
+    robotList = ["burger", "jackal","ridgeback","agvota","rto","rto_real"]
+    plannerList = ["teb","dwa","mpc","rlca","arena","rosnav"]
+    basicColumnList = ["time","done_reason","collision", "robot_radius", "robot_max_speed","number_dynamic_obs","number_static_obs"]
+    notUsedColumnList = ["laser_scan", "robot_lin_vel_x", "robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action",
+                   "episode", "form_dynamic_obs", "form_static_obs", 
+                   "local_planner","robot_model","map"]
+    arrayColumns = ["size_dynamic_obs", "speed_dynamic_obs","size_static_obs"]
+ 
+    def returnOriginalCSVColumnList():
+        
+        originalCSVColumnList =  CSVFormat.basicColumnList + CSVFormat.notUsedColumnList + CSVFormat.arrayColumns
+        return originalCSVColumnList
+    
+    def returnNotUsedColumnList():
+        return CSVFormat.notUsedColumnList
+    
+    def returnOutputColumnList():
         lst = list(range(0,15))
         append_str = "speed_dynamic_obs_"
         speed_dynamic_obs_column = [append_str + str(sub) for sub in lst]
@@ -22,13 +34,17 @@ class RecordedAverage:
         size_dynamic_obs_column = [append_str + str(sub) for sub in lst]
         append_str = "size_static_obs_"
         size_static_obs_column = [append_str + str(sub) for sub in lst]
-
-        plannerList = ["teb","dwa","mpc","rlca","arena","rosnav"]
-
-        columnList =["map","time","done_reason","collision","robot_model", "robot_radius", "robot_max_speed","number_dynamic_obs","number_static_obs"]
-        columnList = columnList + plannerList + size_static_obs_column + size_dynamic_obs_column + speed_dynamic_obs_column
+        return CSVFormat.basicColumnList + CSVFormat.robotList + CSVFormat.plannerList + size_static_obs_column + size_dynamic_obs_column + speed_dynamic_obs_column
+    
+    def returnOutputDataFrame():
+        columnList = CSVFormat.returnOutputColumnList()
         df = pd.DataFrame(columns=columnList)
         return df
+
+class RecordedAverage:
+    currentMapName = None
+    currentRobot = None
+    episodeAverages = pd.DataFrame()
 
     def createAverages(args):
         averagesCSVOutput = pd.DataFrame()
@@ -49,7 +65,7 @@ class RecordedAverage:
         # iterates through all csv files in the specified path
         for fileName in glob.glob('{}/*.csv'.format(pathToCSV)):
             print("Currently working on:",fileName)
-            RecordedAverage.episodeAverages = RecordedAverage.initCSVDf()
+            RecordedAverage.episodeAverages = CSVFormat.returnOutputDataFrame()
 
             # reads the csv file and stores it as a data frame
             data = pd.read_csv(fileName)
@@ -172,26 +188,17 @@ class RecordedAverage:
 
     def calculateEpisodeAverage(data):
 
-        averageDataFrameExtended = RecordedAverage.initCSVDf()
+        averageDataFrameExtended = CSVFormat.returnOutputDataFrame()
         global currentMapName
         global currentRobot
 
+        #save important columns that will be removed
         currentRobot = data["robot_model"][0]
         currentMapName = data["map"][0]
+        local_planner = data["local_planner"][0]
 
         # Drop unnecessary columns
-        data = data.drop(columns=["laser_scan",
-                   "robot_lin_vel_x",
-                  "robot_lin_vel_y",
-                  "robot_ang_vel",
-                   "robot_orientation",
-                   "robot_pos_x",
-                   "robot_pos_y",
-                   "action",
-                   "episode",
-                   "form_dynamic_obs",
-                   "form_static_obs",
-                  ])
+        data = data.drop(columns=CSVFormat.returnNotUsedColumnList())
 
         # Checkng for DUPLICATE values
         data.drop_duplicates(keep='first', inplace = True)
@@ -229,9 +236,8 @@ class RecordedAverage:
         data["rosnav"] = 0
         
         # one hot encoding local_planner"
-        local_planner = data["local_planner"][0]
         data[local_planner] = 1
-        data = data.drop(columns="local_planner")
+        
 
         # refactor speed_dynamic_obs
         dataFrame_Speed_dynamic_obs = RecordedAverage.extractArray(data, "speed_dynamic_obs")
@@ -269,25 +275,10 @@ class RecordedAverage:
             print("CSV is empty")
             return False
 
-        dataFrame=dataFrame.drop(columns=["laser_scan",
-                   "robot_lin_vel_x",
-                  "robot_lin_vel_y",
-                  "robot_ang_vel",
-                   "robot_orientation",
-                   "robot_pos_x",
-                   "robot_pos_y",
-                   "action",
-                   "episode",
-                   "form_dynamic_obs",
-                   "form_static_obs"
-                  ])
-
         csvColumnNames=dataFrame.columns.values.tolist()
-        expectedColumnNames=RecordedAverage.initCSVDf().columns.values.tolist()
-        originalColNames=["local_planner","robot_model","size_dynamic_obs","size_dynamic_obs","speed_dynamic_obs","size_static_obs"]
-        expectedColumnNames = originalColNames + expectedColumnNames
-        
-        if not(set(csvColumnNames) <= set(expectedColumnNames)):
+        expectedColumnNames = CSVFormat.returnOriginalCSVColumnList()
+
+        if(set(csvColumnNames) != set(expectedColumnNames)):
             print("CSV has wrong format")
             return False
         return True    
