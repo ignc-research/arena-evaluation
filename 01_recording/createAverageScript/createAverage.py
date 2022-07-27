@@ -1,4 +1,5 @@
 import os
+from matplotlib import image
 from numpy import empty
 import pandas as pd
 import glob
@@ -284,12 +285,17 @@ class RecordedAverage:
         return True    
 
 if __name__ == "__main__":
+
+    dirname = os.path.dirname(__file__)
+    image_path = os.path.join(dirname, "../../../../arena-rosnav-noetic-devel-branch/simulator_setup/maps") 
+    csv_path = os.path.join(dirname, "../project_recordings")
+
     parser = ArgumentParser()
     parser.add_argument(
         "--image_path",
         action="store",
         dest="image_path",
-        default=f"../../../../arena-rosnav-noetic-devel-branch/simulator_setup/maps",
+        default=image_path,
         help="path to the floor plan of your world. Usually in .pgm format",
         required=False,
     )
@@ -297,7 +303,7 @@ if __name__ == "__main__":
         "--csv_path",
         action="store",
         dest="csv_path",
-        default=f"../project_recordings",
+        default=csv_path,
         help="path to the csv file you want to use as input",
         required=False,
     )
