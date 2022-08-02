@@ -130,7 +130,7 @@ class RecordedAverage:
                 print(averagesRow["map"],"was not found")    
         
         # drop columns not necessary for the NN
-        #combinedDataFrame = combinedDataFrame.drop(columns=["robot_model", "map", "number_dynamic_obs", "number_static_obs"])
+        combinedDataFrame = combinedDataFrame.drop(columns=["robot_model", "map", "number_dynamic_obs", "number_static_obs"])
 
         print("Output path: " + outputPath)
 
