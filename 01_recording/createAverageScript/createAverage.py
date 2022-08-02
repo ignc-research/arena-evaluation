@@ -1,4 +1,5 @@
 import os
+from matplotlib import image
 from numpy import empty
 import pandas as pd
 import glob
@@ -87,7 +88,10 @@ class RecordedAverage:
             averagesCSVOutput = averagesCSVOutput.append(csvAverage)
   
         if (args.run_wcs == True):
-            os.system("python3 $(pwd)/world_complexity.py --folders_path {}".format(pathToImageFolder))
+            command = "python3 $(pwd)/world_complexity.py --folders_path {}".format(pathToImageFolder)
+            print(command)
+            os.system(command)
+
 
         worldComplexityData = pd.read_csv("{}/map_worldcomplexity_results.csv".format(pathToImageFolder))
         
@@ -126,7 +130,9 @@ class RecordedAverage:
                 print(averagesRow["map"],"was not found")    
         
         # drop columns not necessary for the NN
-        combinedDataFrame = combinedDataFrame.drop(columns=["robot_model", "map", "number_dynamic_obs", "number_static_obs"])
+        #combinedDataFrame = combinedDataFrame.drop(columns=["robot_model", "map", "number_dynamic_obs", "number_static_obs"])
+
+        print("Output path: " + outputPath)
 
         combinedDataFrame=combinedDataFrame.rename(columns={
             "time": "episode_duration",
@@ -369,12 +375,17 @@ class RecordedAverage:
         return True    
 
 if __name__ == "__main__":
+
+    dirname = os.path.dirname(__file__)
+    image_path = os.path.join(dirname, "../../../../arena-rosnav/simulator_setup/maps") 
+    csv_path = os.path.join(dirname, "../project_recordings")
+
     parser = ArgumentParser()
     parser.add_argument(
         "--image_path",
         action="store",
         dest="image_path",
-        default=f"../../../../arena-rosnav-noetic-devel-branch/simulator_setup/maps",
+        default=image_path,
         help="path to the floor plan of your world. Usually in .pgm format",
         required=False,
     )
@@ -382,7 +393,7 @@ if __name__ == "__main__":
         "--csv_path",
         action="store",
         dest="csv_path",
-        default=f"../project_recordings",
+        default=csv_path,
         help="path to the csv file you want to use as input",
         required=False,
     )
