@@ -5,6 +5,8 @@ import glob
 import warnings
 import pathlib as pl
 from argparse import ArgumentParser
+import yaml
+import uuid
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -45,6 +47,7 @@ class RecordedAverage:
     currentMapName = None
     currentRobot = None
     episodeAverages = pd.DataFrame()
+    previousTimeValue = 0
 
     def createAverages(args):
         averagesCSVOutput = pd.DataFrame()
@@ -70,6 +73,10 @@ class RecordedAverage:
             # reads the csv file and stores it as a data frame
             data = pd.read_csv(fileName)
 
+            # resets the previousTimeValue so new CSV file will not be affected by old value
+            global previousTimeValue
+            previousTimeValue = 0
+
             # calls a function to check the csv files. In case the csv file does not meet the required characteristics it will be ignored
             if(not(RecordedAverage.checkCSV(data))):
                 continue
@@ -80,7 +87,7 @@ class RecordedAverage:
             averagesCSVOutput = averagesCSVOutput.append(csvAverage)
   
         if (args.run_wcs == True):
-            os.system("/bin/python3 $(pwd)/world_complexity.py --folders_path {}".format(pathToImageFolder))
+            os.system("python3 $(pwd)/world_complexity.py --folders_path {}".format(pathToImageFolder))
 
         worldComplexityData = pd.read_csv("{}/map_worldcomplexity_results.csv".format(pathToImageFolder))
         
@@ -131,6 +138,81 @@ class RecordedAverage:
         csvFilename = "{}/CombinedAverages.csv".format(outputPath)
         with open(csvFilename, 'w') as f:
             combinedDataFrame.to_csv(f, mode='w', header=f.tell()==0, index=False)
+        RecordedAverage.createDirectoryOutput(combinedDataFrame, outputPath)
+
+
+    def createDirectoryOutput(averagesData, outputPath):
+        averagesData["UUID"] = 0
+
+        for World in averagesData['World'].unique():
+            averagesData.loc[averagesData['World'] == World, 'UUID'] = uuid.uuid4()
+
+        outputPath = "{}data".format(outputPath)
+        path = pl.Path(outputPath)
+        path.mkdir(parents=True, exist_ok=True)
+
+        for idx, row in averagesData.iterrows():
+    
+            performance_metrics = dict(
+                episode_duration = row.loc["episode_duration"],
+                success_rate = row.loc["success_rate"],
+                collision_rate= row.loc["collision_rate"]
+            )
+    
+            robot_metrics = dict(
+                robot_radius= row.loc["robot_radius"],
+                robot_max_speed= row.loc["robot_max_speed"]
+            )
+    
+            map_complexity_metrics = dict(
+                EntropyRatio = row.loc[" EntropyRatio"],
+                MapSize = row.loc[" MapSize"],
+                OccupancyRatio = row.loc[" OccupancyRatio"],
+                NumObs_Cv2 = row.loc[" NumObs_Cv2"],
+                AngleInfo_mean = row.loc[" AngleInfo_mean"],
+                distance_norm = row.loc[" distance_norm"],
+                distance_var = row.loc[" distance_var"],
+                distance_avg = row.loc[" distance_avg"]
+            )
+    
+            lst = list(range(0,15))
+
+            append_str = "speed_dynamic_obs_"
+            speed_dynamic_obs_column = [append_str + str(sub) for sub in lst]
+    
+            obstacle_Metrics = dict()
+
+            for column in speed_dynamic_obs_column:
+                obstacle_Metrics.update({column : row.loc[column]})
+
+            append_str = "size_dynamic_obs_"
+            size_dynamic_obs_column = [append_str + str(sub) for sub in lst]
+
+            for column in size_dynamic_obs_column:
+                obstacle_Metrics.update({column : row.loc[column]})
+
+            append_str = "size_static_obs_"
+            size_static_obs_column = [append_str + str(sub) for sub in lst]
+
+            for column in size_static_obs_column:
+                obstacle_Metrics.update({column : row.loc[column]})
+
+
+            mapName =row.loc["UUID"]
+            path = pl.Path("{}/{}".format(outputPath,mapName))
+            path.mkdir(parents=True, exist_ok=True)
+    
+            with open('{}/{}/{}_performance_metrics.yml'.format(outputPath,mapName,mapName), 'w') as outfile:
+                yaml.dump(performance_metrics, outfile, default_flow_style=False)
+        
+            with open('{}/{}/{}_robot_metrics.yml'.format(outputPath,mapName,mapName), 'w') as outfile:
+                yaml.dump(robot_metrics, outfile, default_flow_style=False)
+      
+            with open('{}/{}/{}_map_complexity_metrics.yml'.format(outputPath,mapName,mapName), 'w') as outfile:
+                yaml.dump(map_complexity_metrics, outfile, default_flow_style=False)
+    
+            with open('{}/{}/{}_map_obstacle_metrics.yml'.format(outputPath,mapName,mapName), 'w') as outfile:
+                yaml.dump(obstacle_Metrics, outfile, default_flow_style=False)
 
     def calculateCSVAverage(dataFrame):
         global currentMapName
@@ -207,8 +289,11 @@ class RecordedAverage:
         data.dropna(inplace=True,axis=1)
 
         #adds the last time value as the value for time in all rows (when averaging the time value will be the last recorded time value)
+        global previousTimeValue
         last_value = data['time'].iat[-1]
-        data["time"] = last_value
+        #deducts the previousTimeValue of the previous episode so time will start at 0 again
+        data["time"] = last_value - previousTimeValue
+        previousTimeValue = last_value
 
         # encoding rone_reason,  goal reached = 1, timeout = 0 
         contains_goal_reached = data['done_reason'].str.contains('\[\'goal reached\'\]').any()
