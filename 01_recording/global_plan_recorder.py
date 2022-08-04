@@ -22,7 +22,7 @@ class recorder():
 
         # check whether global path database file exists already, if not initialize
         if not os.path.exists(self.target_file):
-            with open(self.target_file, "w", newline = "") as file:
+            with open(self.target_file, "w+") as file:
                 json.dump({}, file)
                 file.close()
 
@@ -37,14 +37,20 @@ class recorder():
     # define callback function for all variables and their respective topics
     def global_plan_callback(self, msg: Path):
         self.global_path_poses = [[p.pose.position.x,p.pose.position.y] for p in msg.poses]
-        self.global_path_length = np.round(sum(np.linalg.norm(np.array(self.global_path_poses) - np.array(self.global_path_poses[0] + self.global_path_poses[:-1]))),2)
+        for i,point in enumerate(self.global_path_poses):
+            if i == 0:
+                continue
+            else:
+                self.global_path_length = self.global_path_length + np.linalg.norm(np.array(point)-np.array(self.global_path_poses[i-1]))
 
-        with open(self.target_file, "w+", newline = "") as file:
-            database = json.load(file)
+        with open(self.target_file,"r") as file: # read current json database
+            database = json.loads(file.read())
             database[self.scenario] = {
                 "globalPlan": self.global_path_poses,
                 "globalPlan_length": self.global_path_length,
             }
+            file.close()
+        with open(self.target_file, "w+") as file: # write new global plan to database
             json.dump(database, file)
             file.close()
 
