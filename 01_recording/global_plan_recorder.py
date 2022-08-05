@@ -37,11 +37,7 @@ class recorder():
     # define callback function for all variables and their respective topics
     def global_plan_callback(self, msg: Path):
         self.global_path_poses = [[p.pose.position.x,p.pose.position.y] for p in msg.poses]
-        for i,point in enumerate(self.global_path_poses):
-            if i == 0:
-                continue
-            else:
-                self.global_path_length = self.global_path_length + np.linalg.norm(np.array(point)-np.array(self.global_path_poses[i-1]))
+        self.global_path_length = sum([np.linalg.norm(np.array(self.global_path_poses[i])-np.array(self.global_path_poses[i-1])) for i in range(1,len(self.global_path_poses))])
 
         with open(self.target_file,"r") as file: # read current json database
             database = json.loads(file.read())
