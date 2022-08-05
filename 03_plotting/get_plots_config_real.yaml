@@ -20,6 +20,7 @@ color_scheme:
   dwa_youbot: tab:red
   guldenring_jackal: tab:brown
   guldenring_turtlebot3_burger: tab:brown
+  guldenring_rto: tab:brown
   mpc_jackal: tab:green
   mpc_rto: tab:green
   mpc_turtlebot3_burger: tab:green
@@ -61,6 +62,7 @@ labels:
   dwa_youbot: DWA
   guldenring_jackal: GRING
   guldenring_turtlebot3_burger: GRING
+  guldenring_rto: GRING
   mpc_jackal: MPC
   mpc_rto: MPC
   mpc_turtlebot3_burger: MPC
@@ -86,7 +88,7 @@ leave_out_metric:
 - cusps
 leave_out_planner:
 - ''
-most_recent_file: data_22-02-21_16-28-55_jackal.json
+most_recent_file: data_22-08-05_23-09-35_rto_extended.json
 obstacle_color: black
 obstacle_radius: 0.3
 path_3D_alpha: 0.6
