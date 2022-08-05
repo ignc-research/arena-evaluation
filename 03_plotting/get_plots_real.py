@@ -14,6 +14,7 @@ import seaborn as sns
 import pandas as pd
 import argparse
 import sys
+import rospkg
 
 def parsing():
     parser = argparse.ArgumentParser(description='Create quantitative and qualitative plots for user.') # create parser object
@@ -86,7 +87,7 @@ class plotter():
         self.get_planner() # self.planners
 
     def get_map(self): # get map from df file name
-        self.map_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))) + "/simulator_setup/maps"
+        self.map_dir = self.dir_path + "/plotting_setup/maps"
         self.maps_dict = {x.split("/")[-2]:x for x in sorted(glob.glob("{0}/*/".format(self.map_dir)))}
         for key in self.keys:
             for map in sorted(self.maps_dict.keys()): # check if a map in /simulator_setup/maps fits scenario name
@@ -300,15 +301,15 @@ class plotter():
 
                     ax.xaxis.tick_top()
 
-                    plt.xlim(right=12/map_resolution)
-                    plt.ylim(bottom=20/map_resolution)
+                    # plt.xlim(right=12/map_resolution)
+                    # plt.ylim(bottom=20/map_resolution)
 
                     plt.savefig(self.plot_dir + "/qualitative_plots/qualitative_plot_{0}_{1}_{2}".format(map,obstacle_number,velocity), bbox_inches='tight',dpi=200)
                     fig.clear(True)
                     plt.close()
 
     def plot_scenario(self, keys, img,  map_resolution, map_origin):
-        scenario_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))) + "/simulator_setup/scenarios"
+        scenario_dir = self.dir_path + "/plotting_setup/scenarios"
         scenario_dict = {x.split("/")[-1].replace(".json",""):x for x in sorted(glob.glob("{0}/*.json".format(scenario_dir)))}
         for scene in sorted(scenario_dict.keys()): # check if a map in /simulator_setup/maps fits scenario name
             if scene in keys[0]:
@@ -449,10 +450,10 @@ class plotter():
                                 plt.title("Map: {0} Obstacles: {1} Velocity: {1}.{2} ".format(map, int(obstacle_number.replace("obs","")), velocity.replace("vel","")[0], velocity.replace("vel","")[1]), fontsize = self.config["plot_quantitative_title_size"])
                         
                         # ax.get_xaxis().set_visible(False)
-                        for i,thisbar in enumerate(ax.patches):
-                            if i % 2 == 0:
-                                thisbar.set_hatch("/")
-                                thisbar.set_alpha(0.6)
+                        # for i,thisbar in enumerate(ax.patches):
+                        #     if i % 2 == 0:
+                        #         thisbar.set_hatch("/")
+                        #         thisbar.set_alpha(0.6)
                         for label in ax.get_yaxis().get_ticklabels()[1::2]:
                             label.set_color('white')
                         # for label in ax.get_yaxis().get_ticklabels()[::2]:
@@ -559,10 +560,10 @@ class plotter():
                             plt.title("Map: {0}".format(map), fontsize = self.config["plot_quantitative_title_size"])
 
                     # ax.get_xaxis().set_visible(False)
-                    for i,thisbar in enumerate(ax.patches):
-                        if (i % 4) in [0,1]:
-                            thisbar.set_hatch("/")
-                            thisbar.set_alpha(0.6)
+                    # for i,thisbar in enumerate(ax.patches):
+                    #     if (i % 4) in [0,1]:
+                    #         thisbar.set_hatch("/")
+                    #         thisbar.set_alpha(0.6)
                     for label in ax.get_yaxis().get_ticklabels()[1::2]:
                         label.set_color('white')
                     # for label in ax.get_yaxis().get_ticklabels()[::2]:
@@ -671,12 +672,12 @@ class plotter():
                             dat["planner"] = self.config["labels"][self.data[key]["planner"]]
                             dat["obs"] = self.data[key]["obstacle_number"].replace("obs","")
                             dat["map"] = map
-                            # data = pd.concat([data,dat[["time","path_length","success","collision","min_clearing_distance","normalized_curvature","roughness","jerk","map","planner","obs"]]])
-                            data = pd.concat([data,dat[["time","path_length","success","collision","min_obstacle_distance","normalized_curvature","path_smoothness","velocity_smoothness","map","planner","obs"]]])
+                            data = pd.concat([data,dat[["time","path_length","success","collision","min_clearing_distance","roughness","jerk","time_space_efficiency","map","planner","obs"]]])
+                            # data = pd.concat([data,dat[["time","path_length","success","collision","min_obstacle_distance","normalized_curvature","path_smoothness","velocity_smoothness","map","planner","obs"]]])
 
         cols1 = ["time","path_length","success","collision"]
-        cols2 = ["min_clearing_distance","normalized_curvature","roughness","jerk"]
-        cols = ["time","path_length","success","collision","min_clearing_distance","normalized_curvature","roughness","jerk"]
+        cols2 = ["min_clearing_distance","roughness","jerk","time_space_efficiency"]
+        cols = ["time","path_length","success","collision","min_clearing_distance","roughness","jerk","time_space_efficiency"]
 
         cols1_new = ["time","path_length","success","collision"]
         cols2_new = ["min_obstacle_distance","normalized_curvature","path_smoothness","velocity_smoothness"]
@@ -685,11 +686,11 @@ class plotter():
         data = data.groupby(["planner","obs"]).mean().round(1)
         data_obs_average = data.groupby(level=["planner"]).mean().round(1)
         array = np.empty([6,0])
-        for col in cols2_new:
+        for col in cols2:
             array = np.append(array,np.array(data.loc[(slice(None),"05"),col])[:,np.newaxis],axis=1)
             array = np.append(array,np.array(data.loc[(slice(None),"10"),col])[:,np.newaxis],axis=1)
             array = np.append(array,np.array(data_obs_average.loc[:,col])[:,np.newaxis],axis=1)
-        multi_cols = [cols2_new,["05","10","avg"]]
+        multi_cols = [cols2,["05","10","avg"]]
         multi_cols = pd.MultiIndex.from_product(multi_cols, names=["Metric", "Obstacle Number"])
         # data = data.sort_index()
 
