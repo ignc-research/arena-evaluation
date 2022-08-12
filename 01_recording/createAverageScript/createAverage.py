@@ -401,7 +401,7 @@ if __name__ == "__main__":
         "--run_wcs",
         action="store",
         dest="run_wcs",
-        default=True,
+        default=False,
         help="indicates if the world complexity script should be executed",
         required=False,
     )
