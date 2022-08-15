@@ -1,3 +1,2 @@
-max_episodes: 15 # terminates simulation upon reaching xth episode
-max_time: 1200 # terminates simulation after x seconds
-record_frequency: 0.4 # time between actions recorded
+max_time_per_episode: 300 # stops recording for the current episode after max time has reached
+record_frequency: 0.3 # time between actions recorded
