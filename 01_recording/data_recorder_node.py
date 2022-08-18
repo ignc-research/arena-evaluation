@@ -70,7 +70,7 @@ class recorder():
             while rospy.get_time() - self.current_episode_start_time < self.config["max_time_per_episode"]*1.01: # per episode only record until max episode time has passed, afterwards wait until next episode
                 current_simulation_action_time = rospy.get_time() 
                 if current_simulation_action_time - self.last_action_time >= self.config["record_frequency"]: # record only in intervals definded by record frequency
-                    if self.laserscan != ["None"]:                
+                    if self.laserscan != ["None"] and self.action != ['None']:                
                         self.last_action_time = current_simulation_action_time
                         self.addData(np.array(
                             [self.episode,

@@ -1,2 +1,2 @@
-max_time_per_episode: 300 # stops recording for the current episode after max time has reached
+max_time_per_episode: 180 # stops recording for the current episode after max time has reached
 record_frequency: 0.3 # time between actions recorded
