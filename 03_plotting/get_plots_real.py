@@ -87,7 +87,7 @@ class plotter():
         self.get_planner() # self.planners
 
     def get_map(self): # get map from df file name
-        self.map_dir = rospkg.RosPack().get_path('simulator_setup') + "/maps"
+        self.map_dir = self.dir_path + "/plotting_setup/maps"
         self.maps_dict = {x.split("/")[-2]:x for x in sorted(glob.glob("{0}/*/".format(self.map_dir)))}
         for key in self.keys:
             for map in sorted(self.maps_dict.keys()): # check if a map in /simulator_setup/maps fits scenario name
@@ -301,15 +301,15 @@ class plotter():
 
                     ax.xaxis.tick_top()
 
-                    plt.xlim(right=12/map_resolution)
-                    plt.ylim(bottom=20/map_resolution)
+                    # plt.xlim(right=12/map_resolution)
+                    # plt.ylim(bottom=20/map_resolution)
 
                     plt.savefig(self.plot_dir + "/qualitative_plots/qualitative_plot_{0}_{1}_{2}".format(map,obstacle_number,velocity), bbox_inches='tight',dpi=200)
                     fig.clear(True)
                     plt.close()
 
     def plot_scenario(self, keys, img,  map_resolution, map_origin):
-        scenario_dir = rospkg.RosPack().get_path('simulator_setup') + "/scenarios"
+        scenario_dir = self.dir_path + "/plotting_setup/scenarios"
         scenario_dict = {x.split("/")[-1].replace(".json",""):x for x in sorted(glob.glob("{0}/*.json".format(scenario_dir)))}
         for scene in sorted(scenario_dict.keys()): # check if a map in /simulator_setup/maps fits scenario name
             if scene in keys[0]:
@@ -336,7 +336,7 @@ class plotter():
         plt.scatter([],[], marker = self.config["start_marker"], label = "Start", color = self.config["start_point_color"])
         plt.scatter([],[], marker = self.config["goal_marker"], label = "Goal", color = self.config["goal_point_color"])
         # start and goal point
-        plt.scatter(start_x,start_y, marker = self.config["start_marker"], s = self.config["start_size"]/map_resolution, color = self.config["start_point_color"],zorder=5)
+        plt.scatter(start_x,start_y, marker = self.config["start_marker"], s = self.config["start_size"]/map_resolution, facecolors = "none", edgecolors = self.config["start_point_color"],zorder=5)
         plt.scatter(goal_x,goal_y, marker = self.config["goal_marker"], s = self.config["goal_size"]/map_resolution, facecolors = "none", edgecolors = self.config["goal_point_color"],zorder=5)
 
         # plot dynamic obstacle path
@@ -346,10 +346,10 @@ class plotter():
                 plt.gca().add_patch(plt.Circle(waypoint,
                     radius = self.config["obstacle_radius"]/map_resolution,
                     color=self.config["obstacle_color"],
-                    fill=False,zorder=5, alpha = 0.5))
+                    fill=False,zorder=5, alpha = 0.3))
                 if i == len(path)-1:
                     continue
-                plt.gca().add_patch(patches.FancyArrowPatch(waypoint, path[i+1], arrowstyle='<->', mutation_scale = self.config["path_arrow_size"], color = self.config["path_arrow_color"],zorder=5,alpha=0.5))
+                plt.gca().add_patch(patches.FancyArrowPatch(waypoint, path[i+1], arrowstyle='<->', mutation_scale = self.config["path_arrow_size"], color = self.config["path_arrow_color"],zorder=5,alpha=0.3))
 ### end of block qualitative plots ###
 
 ### quantitative plots ###
@@ -450,10 +450,10 @@ class plotter():
                                 plt.title("Map: {0} Obstacles: {1} Velocity: {1}.{2} ".format(map, int(obstacle_number.replace("obs","")), velocity.replace("vel","")[0], velocity.replace("vel","")[1]), fontsize = self.config["plot_quantitative_title_size"])
                         
                         # ax.get_xaxis().set_visible(False)
-                        for i,thisbar in enumerate(ax.patches):
-                            if i % 2 == 0:
-                                thisbar.set_hatch("/")
-                                thisbar.set_alpha(0.6)
+                        # for i,thisbar in enumerate(ax.patches):
+                        #     if i % 2 == 0:
+                        #         thisbar.set_hatch("/")
+                        #         thisbar.set_alpha(0.6)
                         for label in ax.get_yaxis().get_ticklabels()[1::2]:
                             label.set_color('white')
                         # for label in ax.get_yaxis().get_ticklabels()[::2]:
@@ -560,10 +560,10 @@ class plotter():
                             plt.title("Map: {0}".format(map), fontsize = self.config["plot_quantitative_title_size"])
 
                     # ax.get_xaxis().set_visible(False)
-                    for i,thisbar in enumerate(ax.patches):
-                        if (i % 4) in [0,1]:
-                            thisbar.set_hatch("/")
-                            thisbar.set_alpha(0.6)
+                    # for i,thisbar in enumerate(ax.patches):
+                    #     if (i % 4) in [0,1]:
+                    #         thisbar.set_hatch("/")
+                    #         thisbar.set_alpha(0.6)
                     for label in ax.get_yaxis().get_ticklabels()[1::2]:
                         label.set_color('white')
                     # for label in ax.get_yaxis().get_ticklabels()[::2]:
@@ -573,6 +573,79 @@ class plotter():
                     fig.clear(True)
                     plt.close()
 ### end of block obs in one plots ###
+
+# ### latex table ###
+#     def get_latex_table(self):
+#         ### iteration part ###
+#         data = pd.DataFrame() # concat all summary_df of the planners into one and save planner in column
+#         for map in self.maps:
+#             map_keys = [] # list of keys with current map
+#             for key in self.keys:
+#                 if self.data[key]["map"] == map:
+#                     map_keys.append(key) # append key if map matches current map
+#             for velocity in self.velocities:
+#                 vel_keys = [] # list of keys with current velocity
+#                 for key in map_keys:
+#                     if self.data[key]["velocity"] == velocity:
+#                         vel_keys.append(key) # append key if velocity matches current velocity
+#                 for obstacle_number in self.obstacle_numbers:
+#                     obs_keys = [] # list of keys with the current obstacle number
+#                     for key in sorted(vel_keys):
+#                         if self.data[key]["obstacle_number"] == obstacle_number:
+#                             obs_keys.append(key) # append key if obstacle_number matches current obstacle_number
+#                             dat = pd.DataFrame(self.data[key]["summary_df"]) # concat the summary_df of that key (planner)
+#                             len_dat = len(dat.index)
+#                             dat["success"] = [list(dat["done_reason"]).count("goal_reached")/len_dat]*len_dat
+#                             dat["planner"] = self.config["labels"][self.data[key]["planner"]]
+#                             dat["obs"] = self.data[key]["obstacle_number"].replace("obs","")
+#                             dat["map"] = map
+#                             data = pd.concat([data,dat[["time","path_length","success","collision","jerk","map","planner","obs"]]])
+#         data = data.groupby(["map","planner","obs"]).mean()
+#         data_map_average = data.groupby(level=["planner","obs"]).mean()
+#         data_map_average_obs_overage = data.groupby(level=["planner"]).mean()
+#         data_obs_average = data.groupby(level=["map","planner"]).mean()
+#         maps_list = self.maps
+#         planner_list = [self.config["labels"][x] for x in self.planners]
+#         obs_list = ["05"]
+#         for map in maps_list:
+#             for planner in planner_list:
+#                 data.loc[map,planner,"avg"] = data_obs_average.loc[map,planner]
+#         for planner in planner_list:
+#             data_map_average.loc[(planner,"avg"),:] = data_map_average_obs_overage.loc[planner]
+#         data = data.sort_index()
+#         data = data.rename({"time":"Time","path_length":"Path Length","success":"Success Rate","collision":"Collisions","jerk":"Movement Jerk"}, axis=1)
+#         data_map_average = data_map_average.sort_index()
+#         data_map_average = data_map_average.rename({"time":"Time","path_length":"Path Length","success":"Success Rate","collision":"Collisions","jerk":"Movement Jerk"}, axis=1)
+#         cols = ["Time","Path Length","Success Rate","Collisions","Movement Jerk"]
+#         data_minimal = pd.DataFrame(index=data_obs_average.index, columns=cols,)
+#         for map in maps_list:
+#             for planner in planner_list:
+#                 for col in cols:
+#                     col_data = str()
+#                     for obs in obs_list:
+#                         if obs == "05":
+#                             col_data = str(np.round(data.loc[(map,planner,obs),col],2))
+#                         else:
+#                             col_data = col_data + "|" + str(np.round(data.loc[(map,planner,obs),col],2))
+#                     data_minimal.loc[(map,planner),col] = col_data
+#         data_map_average_minimal = pd.DataFrame(index=data_map_average_obs_overage.index, columns=cols,)
+#         for planner in planner_list:
+#             for col in cols:
+#                 col_data = str()
+#                 for obs in obs_list:
+#                     if obs == "05":
+#                         col_data = str(np.round(data_map_average.loc[(planner,obs),col],2))
+#                     else:
+#                         col_data = col_data + " | " + str(np.round(data_map_average.loc[(planner,obs),col],2))
+#                 data_map_average_minimal.loc[(planner),col] = col_data
+
+#         table = {"map_data":data_minimal,"avg_data":data_map_average_minimal}
+#         text_file = open(self.plot_dir+"/latex_table.tex", "w")
+#         for t in table:
+#             text_file.write("\nTable for: "+t+"\n")
+#             text_file.write(table[t].to_latex())
+#         text_file.close()
+# ### end of block latex table ###
 
 ### latex table ###
     def get_latex_table(self):
@@ -595,55 +668,41 @@ class plotter():
                             obs_keys.append(key) # append key if obstacle_number matches current obstacle_number
                             dat = pd.DataFrame(self.data[key]["summary_df"]) # concat the summary_df of that key (planner)
                             len_dat = len(dat.index)
-                            dat["success"] = [list(dat["done_reason"]).count("goal_reached")/len_dat]*len_dat
+                            dat["success"] = list([np.mean(dat["success"])])*len_dat
                             dat["planner"] = self.config["labels"][self.data[key]["planner"]]
                             dat["obs"] = self.data[key]["obstacle_number"].replace("obs","")
                             dat["map"] = map
-                            data = pd.concat([data,dat[["time","path_length","success","collision","jerk","map","planner","obs"]]])
-        data = data.groupby(["map","planner","obs"]).mean()
-        data_map_average = data.groupby(level=["planner","obs"]).mean()
-        data_map_average_obs_overage = data.groupby(level=["planner"]).mean()
-        data_obs_average = data.groupby(level=["map","planner"]).mean()
-        maps_list = self.maps
-        planner_list = [self.config["labels"][x] for x in self.planners]
-        obs_list = ["05","10","20","avg"]
-        for map in maps_list:
-            for planner in planner_list:
-                data.loc[map,planner,"avg"] = data_obs_average.loc[map,planner]
-        for planner in planner_list:
-            data_map_average.loc[(planner,"avg"),:] = data_map_average_obs_overage.loc[planner]
-        data = data.sort_index()
-        data = data.rename({"time":"Time","path_length":"Path Length","success":"Success Rate","collision":"Collisions","jerk":"Movement Jerk"}, axis=1)
-        data_map_average = data_map_average.sort_index()
-        data_map_average = data_map_average.rename({"time":"Time","path_length":"Path Length","success":"Success Rate","collision":"Collisions","jerk":"Movement Jerk"}, axis=1)
-        cols = ["Time","Path Length","Success Rate","Collisions","Movement Jerk"]
-        data_minimal = pd.DataFrame(index=data_obs_average.index, columns=cols,)
-        for map in maps_list:
-            for planner in planner_list:
-                for col in cols:
-                    col_data = str()
-                    for obs in obs_list:
-                        if obs == "05":
-                            col_data = str(np.round(data.loc[(map,planner,obs),col],2))
-                        else:
-                            col_data = col_data + "|" + str(np.round(data.loc[(map,planner,obs),col],2))
-                    data_minimal.loc[(map,planner),col] = col_data
-        data_map_average_minimal = pd.DataFrame(index=data_map_average_obs_overage.index, columns=cols,)
-        for planner in planner_list:
-            for col in cols:
-                col_data = str()
-                for obs in obs_list:
-                    if obs == "05":
-                        col_data = str(np.round(data_map_average.loc[(planner,obs),col],2))
-                    else:
-                        col_data = col_data + " | " + str(np.round(data_map_average.loc[(planner,obs),col],2))
-                data_map_average_minimal.loc[(planner),col] = col_data
+                            data = pd.concat([data,dat[["time","path_length","success","collision","min_clearing_distance","roughness","jerk","time_space_efficiency","map","planner","obs"]]])
+                            # data = pd.concat([data,dat[["time","path_length","success","collision","min_obstacle_distance","normalized_curvature","path_smoothness","velocity_smoothness","map","planner","obs"]]])
 
-        table = {"map_data":data_minimal,"avg_data":data_map_average_minimal}
-        text_file = open(self.plot_dir+"/latex_table.txt", "w")
-        for t in table:
-            text_file.write("\nTable for: "+t+"\n")
-            text_file.write(table[t].to_latex())
+        cols1 = ["time","path_length","success","collision"]
+        cols2 = ["min_clearing_distance","roughness","jerk","time_space_efficiency"]
+        cols = ["time","path_length","success","collision","min_clearing_distance","roughness","jerk","time_space_efficiency"]
+
+        cols1_new = ["time","path_length","success","collision"]
+        cols2_new = ["min_obstacle_distance","normalized_curvature","path_smoothness","velocity_smoothness"]
+        cols_new = ["time","path_length","success","collision","min_obstacle_distance","normalized_curvature","path_smoothness","velocity_smoothness"]
+
+        data = data.groupby(["planner","obs"]).mean().round(1)
+        data_obs_average = data.groupby(level=["planner"]).mean().round(1)
+        array = np.empty([6,0])
+        for col in cols2:
+            array = np.append(array,np.array(data.loc[(slice(None),"05"),col])[:,np.newaxis],axis=1)
+            array = np.append(array,np.array(data.loc[(slice(None),"10"),col])[:,np.newaxis],axis=1)
+            array = np.append(array,np.array(data_obs_average.loc[:,col])[:,np.newaxis],axis=1)
+        multi_cols = [cols2,["05","10","avg"]]
+        multi_cols = pd.MultiIndex.from_product(multi_cols, names=["Metric", "Obstacle Number"])
+        # data = data.sort_index()
+
+        data = pd.DataFrame(array,index = data_obs_average.index,columns=multi_cols)
+        # data = data.rename({"time":"Time","path_length":"Path Length","success":"Success Rate","collision":"Collisions","jerk":"Movement Jerk",
+        #                     "normalized_curvature":"Norm. Curvature", "roughness":"Roughness", "min_clearing_distance":"Min. Obs. Distance",
+        #                     }, axis=1)
+
+        text_file = open(self.plot_dir+"/latex_table.tex", "w")
+        # for t in table:
+        # text_file.write("\nTable for: "+t+"\n")
+        text_file.write(data.to_latex())
         text_file.close()
 ### end of block latex table ###
 

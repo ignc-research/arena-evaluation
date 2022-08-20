@@ -30,13 +30,14 @@ class recorder():
         # self.episode_end_time = 0.0
         # self.time = 0.0
         self.start = time.time()
+        self.start_rospy_time = rospy.get_time()
         self.dir_path = os.path.dirname(os.path.abspath(__file__)) # get path for current file, does not work if os.chdir() was used
         self.model = rospy.get_param("model","base_model")
         self.now = time.strftime("%y-%m-%d_%H-%M-%S")
         #'''
         self.waypoint_generator = rospy.get_param("waypoint_generator")
         self.record_only_planner = rospy.get_param("record_only_planner")
-        self.scenario = rospy.get_param("scenario_file").replace(".json","").replace("eval/","")
+        self.scenario = rospy.get_param("scenario_file").replace(".json","").replace("eval/","").replace("random_eval/","")
         self.robot_radius = rospy.get_param("/radius")
         self.robot_max_speed = rospy.get_param("/speed")
         self.map = rospy.get_param("/map_file")
@@ -173,7 +174,7 @@ class recorder():
             self.collision = False
 
         #  check for termination criterion "max time"
-        # if time.time()-self.start > self.config["max_time"]:
+        # if rospy.get_time()-self.start_rospy_time > self.config["max_time"]:
         #     subprocess.call(["killall","-9","rosmaster"]) # apt-get install psmisc necessary
         #     sys.exit()
 
@@ -250,7 +251,7 @@ class recorder():
                     ], dtype="object"
                 ))
 
-        # check for termination criterion "max episodes"
+        # # check for termination criterion "max episodes"
         # if self.episode == self.config["max_episodes"]-1:
         #     subprocess.call(["killall","-9","rosmaster"]) # apt-get install psmisc necessary
         #     sys.exit()
