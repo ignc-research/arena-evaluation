@@ -9,3 +9,6 @@ robot_radius:
   youbot: 0.347
 time_out_treshold: 180
 collision_treshold: 2
+# accounting for start up and termination delay
+drop_first_episode: false
+drop_last_episode: true
