@@ -79,8 +79,9 @@ class get_metrics():
             print(
                 "INFO: Data tranformation and evaluation finished for: {}".format(file_name))
             processed_files.append(file)
-        from IPython.display import display
-        display(data)
+        # for development, display pd Dataframe
+        # from IPython.display import display
+        # display(data)
         self.grab_data(processed_files)
         with open(self.dir_path+"/data_{}.json".format(self.now), "w") as outfile:
             json.dump(data.to_json(), outfile)
