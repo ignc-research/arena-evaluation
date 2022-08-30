@@ -82,9 +82,9 @@ class get_metrics():
         # for development, display pd Dataframe
         # from IPython.display import display
         # display(data)
+        # sys.exit()
         self.grab_data(processed_files)
-        with open(self.dir_path+"/data_{}.json".format(self.now), "w") as outfile:
-            json.dump(data.to_json(), outfile)
+        data.to_csv(self.dir_path+"/data_{}.csv".format(self.now))
         print("-------------------------------------------------------------------------------------------------")
         print("INFO: End data transformation and evaluation: {}".format(
             time.strftime("%y-%m-%d_%H:%M:%S")))
