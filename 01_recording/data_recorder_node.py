@@ -27,8 +27,8 @@ class recorder():
         self.now = time.strftime("%y-%m-%d_%H-%M-%S")
 
         self.local_planner = rospy.get_param("local_planner")
-        self.waypoint_generator = rospy.get_param("waypoint_generator")
-        self.record_only_planner = rospy.get_param("record_only_planner")
+        self.waypoint_generator = rospy.get_param("waypoint_generator", "default_WPG")
+        self.record_only_planner = rospy.get_param("record_only_planner", True)
         self.model = rospy.get_param("model","base_model")
         self.map = rospy.get_param("map_file")
         self.scenario = rospy.get_param("scenario_file").replace(".json","").replace("eval/","").replace("random_eval/","")
