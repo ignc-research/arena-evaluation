@@ -90,6 +90,10 @@ class recorder():
                         ))
                 if rospy.is_shutdown():
                     break
+            
+            # shutdown ROS master and stop this script after exceeding max episode time (usually after finishing last episode)
+            subprocess.call(["killall","-9","rosmaster"]) # apt-get install psmisc necessary
+            sys.exit()
 
     def clear_costmaps(self): # clear costmap function
         bashCommand = "rosservice call /move_base/clear_costmaps"
