@@ -51,18 +51,18 @@ class recorder():
         
         # Create a folder for the map if a folder does not exist
         dirname = os.path.dirname(__file__)
-        output_path = Path(dirname) / "project_recordings" / self.map
+        output_path = Path(dirname) / "recordings" / self.map
         output_path.mkdir(parents=True, exist_ok=True)
         
 
         if self.record_only_planner:
-            with open(self.dir_path+"/project_recordings/{0}/{0}_{1}_{2}--{3}--{4}.csv".format(self.map,self.local_planner,self.model,self.scenario,self.now), "w+", newline = "") as file:
+            with open(self.dir_path+"/recordings/{0}/{0}_{1}_{2}--{3}--{4}.csv".format(self.map,self.local_planner,self.model,self.scenario,self.now), "w+", newline = "") as file:
                 writer = csv.writer(file, delimiter = ',')
                 header = [["episode","map","local_planner","time","done_reason","collision","laser_scan","robot_model","robot_radius","robot_max_speed","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action", "number_dynamic_obs", "form_dynamic_obs", "size_dynamic_obs", "speed_dynamic_obs", "number_static_obs", "form_static_obs", "num_vertices_static_obs"]]
                 writer.writerows(header)
                 file.close()
         else:
-            with open(self.dir_path+"/project_recordings/{0}/{0}_{1}_{2}_{3}--{4}--{5}.csv".format(self.map,self.local_planner,self.waypoint_generator,self.model,self.scenario,self.now), "w+", newline = "") as file:
+            with open(self.dir_path+"/recordings/{0}/{0}_{1}_{2}_{3}--{4}--{5}.csv".format(self.map,self.local_planner,self.waypoint_generator,self.model,self.scenario,self.now), "w+", newline = "") as file:
                 writer = csv.writer(file, delimiter = ',')
                 header = [["episode","map","local_planner","time","done_reason","collision","laser_scan","robot_model","robot_radius","robot_max_speed","robot_lin_vel_x","robot_lin_vel_y","robot_ang_vel","robot_orientation","robot_pos_x","robot_pos_y","action", "number_dynamic_obs", "form_dynamic_obs", "size_dynamic_obs", "speed_dynamic_obs", "number_static_obs", "form_static_obs", "num_vertices_static_obs"]]
                 writer.writerows(header)
@@ -134,11 +134,13 @@ class recorder():
 
     def dynamic_size_callback(self, msg: String):
         str_list = msg.data.split(",")
-        self.dynamic_obs_size  = [x for x in str_list]
+        float_list = [round(float(x), 3) for x in str_list]
+        self.dynamic_obs_size  = [x for x in float_list]
 
     def dynamic_speed_callback(self, msg: String):
         str_list = msg.data.split(",")
-        self.dynamic_obs_speed  = [x for x in str_list]
+        float_list = [round(float(x), 3) for x in str_list]
+        self.dynamic_obs_speed  = [x for x in float_list]
 
     def static_number_callback(self, msg: Int32):
         self.static_obs_number = msg.data
@@ -258,12 +260,12 @@ class recorder():
 
     def addData(self, data:np.array): #add new row to the csv file
         if self.record_only_planner:
-            with open(self.dir_path+"/project_recordings/{0}/{0}_{1}_{2}--{3}--{4}.csv".format(self.map,self.local_planner,self.model,self.scenario,self.now), "a+", newline = "") as file:
+            with open(self.dir_path+"/recordings/{0}/{0}_{1}_{2}--{3}--{4}.csv".format(self.map,self.local_planner,self.model,self.scenario,self.now), "a+", newline = "") as file:
                 writer = csv.writer(file, delimiter = ',') # writer has to be defined again for the code to work
                 writer.writerows(data.reshape(1,-1)) # reshape into line vector
                 file.close()
         else:
-            with open(self.dir_path+"/project_recordings/{0}/{0}_{1}_{2}_{3}--{4}--{5}.csv".format(self.map,self.local_planner,self.waypoint_generator,self.model,self.scenario,self.now), "w+", newline = "") as file:
+            with open(self.dir_path+"/recordings/{0}/{0}_{1}_{2}_{3}--{4}--{5}.csv".format(self.map,self.local_planner,self.waypoint_generator,self.model,self.scenario,self.now), "w+", newline = "") as file:
                 writer = csv.writer(file, delimiter = ',') # writer has to be defined again for the code to work
                 writer.writerows(data.reshape(1,-1)) # reshape into line vector
                 file.close()
